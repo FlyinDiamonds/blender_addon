@@ -9,7 +9,7 @@ class FD_PlanningPanel(Panel):
     bl_idname = "FD_PlanningPanel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "FlyingDiamonds"
+    bl_category = "FlyinDiamonds"
 
     def draw_header_preset(self, context):
         layout = self.layout
@@ -28,7 +28,7 @@ class FD_SwarmArea(Panel):
     bl_idname = "FD_SwarmArea"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "FlyingDiamonds"
+    bl_category = "FlyinDiamonds"
     bl_parent_id = "FD_PlanningPanel"
 
     def draw(self, context):
@@ -44,7 +44,7 @@ class FD_SwarmInit(Panel):
     bl_idname = "FD_SwarmInit"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "FlyingDiamonds"
+    bl_category = "FlyinDiamonds"
     bl_parent_id = "FD_PlanningPanel"
 
     def draw(self, context):
@@ -60,7 +60,7 @@ class FD_SwarmPlan(Panel):
     bl_idname = "FD_SwarmPlan"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "FlyingDiamonds"
+    bl_category = "FlyinDiamonds"
     bl_parent_id = "FD_PlanningPanel"
 
     def draw(self, context):
@@ -77,7 +77,7 @@ class FD_SwarmDistance(Panel):
     bl_idname = "FD_SwarmDistance"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "FlyingDiamonds"
+    bl_category = "FlyinDiamonds"
     bl_parent_id = "FD_PlanningPanel"
 
     def draw(self, context):
@@ -93,7 +93,7 @@ class FD_SwarmSpeed(Panel):
     bl_idname = "FD_SwarmSpeed"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "FlyingDiamonds"
+    bl_category = "FlyinDiamonds"
     bl_parent_id = "FD_PlanningPanel"
 
     def draw(self, context):
@@ -109,7 +109,7 @@ class FD_ColorPanel(Panel):
     bl_idname = "FD_ColorPanel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "FlyingDiamonds"
+    bl_category = "FlyinDiamonds"
 
     def draw(self, context):
         layout = self.layout
@@ -124,11 +124,10 @@ class FD_ExportPanel(Panel):
     bl_idname = "FD_ExportPanel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "FlyingDiamonds"
+    bl_category = "FlyinDiamonds"
 
     def draw(self, context):
         layout = self.layout
 
         row = layout.row()
         row.operator("object.swarm_export")
-
