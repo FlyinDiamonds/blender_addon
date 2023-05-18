@@ -7,6 +7,7 @@ from .classes.SwarmPainter import SwarmPainter
 from .classes.SwarmArea import SwarmArea
 from .classes.SwarmSpeed import SwarmSpeed
 from .classes.SwarmDistance import SwarmDistance
+from .classes import Panels
 
 bl_info = {
     "name": "SwarmPlanner",
@@ -37,6 +38,10 @@ menu_functions = [
     lambda self, context: self.layout.operator(SwarmDistance.bl_idname),
 ]
 
+files = (
+    Panels,
+)
+
 
 def register():
     bpy.utils.register_class(SwarmInit)
@@ -60,8 +65,14 @@ def register():
     bpy.utils.register_class(SwarmDistance)
     bpy.types.VIEW3D_MT_object.append(menu_functions[6])
 
+    for f in files:
+        f.register()
+
 def unregister():
     for current_class in menu_classes:
         bpy.utils.unregister_class(current_class)
     for menu_function in menu_functions:
         bpy.types.VIEW3D_MT_object.remove(menu_function)
+
+    for f in reversed(files):
+        f.unregister()
