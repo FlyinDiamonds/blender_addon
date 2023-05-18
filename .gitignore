@@ -1,0 +1,5 @@
+# Project exclude paths
+*.zip
+/.idea/
+/.vscode/
+/__pycache__/
