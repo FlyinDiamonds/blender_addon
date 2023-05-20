@@ -16,7 +16,7 @@ class FD_PlanningPanel(Panel):
 
         row = layout.row()
         documentation_url = "https://github.com/FlyinDiamonds/blender_addon/tree/main/Addon-SwarmPlanner"
-        row.operator("fd.open_help_url", icon='QUESTION', text="").url = documentation_url
+        # row.operator("fd.open_help_url", icon='QUESTION', text="").url = documentation_url
 
     def draw(self, context):
         pass
