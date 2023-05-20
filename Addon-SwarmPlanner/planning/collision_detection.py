@@ -1,6 +1,6 @@
 import numpy as np
 
-from .classes import *
+from .operators import *
 
 def calculate_danger_zone_distance(p1:FlightPath, p2:FlightPath, crossing_info:CrossingInfo, min_separation):
     if not crossing_info.valid:
