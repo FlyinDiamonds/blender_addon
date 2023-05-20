@@ -1,4 +1,4 @@
-from .operators import *
+from .classes import *
 
 from scipy.optimize import linear_sum_assignment
 from .collision_detection import detect_collisions
