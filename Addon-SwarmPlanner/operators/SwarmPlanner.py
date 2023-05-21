@@ -2,19 +2,13 @@ import bpy
 
 from ..planning.planner import plan_fastest, get_max_time
 
-class SwarmPlanner(bpy.types.Operator):
+
+class SwarmPlannerBase:
     """Plan drone swarm transition to selected formation"""
-    bl_idname = "object.swarm_plan"
-    bl_label = "Swarm - Plan transition"
-    bl_options = {'REGISTER', 'UNDO'}
 
-    MINIMUM_DISTANCE: bpy.props.FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
-    SPEED: bpy.props.FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
-    USE_FACES: bpy.props.BoolProperty(name="Use faces", default=False)
-
-    def invoke(self, context, event):
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self)
+    min_distance: bpy.props.FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
+    speed: bpy.props.FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
+    use_faces: bpy.props.BoolProperty(name="Use faces", default=False)
 
     def execute(self, context):
         scene = context.scene
@@ -32,7 +26,7 @@ class SwarmPlanner(bpy.types.Operator):
 
         target_object = context.active_object
 
-        if self.USE_FACES:
+        if self.use_faces:
             for polygon in target_object.data.polygons:
                 polygon_global_position = target_object.matrix_world @ polygon.center
                 positions_target.append(list(polygon_global_position))
@@ -46,14 +40,14 @@ class SwarmPlanner(bpy.types.Operator):
         flight_paths = plan_fastest(
             positions_source[:position_cnt],
             positions_target[:position_cnt],
-            self.SPEED, self.MINIMUM_DISTANCE)
+            self.speed, self.min_distance)
 
         frame_start = scene.frame_current
-        last_frame = int(get_max_time(flight_paths, self.SPEED)*FRAMERATE) + frame_start
+        last_frame = int(get_max_time(flight_paths, self.speed)*FRAMERATE) + frame_start
         for path in flight_paths:
-            dt = path.color / self.SPEED
+            dt = path.color / self.speed
             dframe = int(dt*FRAMERATE)
-            frame_cnt = int(path.length/self.SPEED*FRAMERATE)
+            frame_cnt = int(path.length/self.speed*FRAMERATE)
 
             current_drone = drone_objects[path.start_position_index]
             current_drone.location = path.start
@@ -72,4 +66,29 @@ class SwarmPlanner(bpy.types.Operator):
                 context.scene.frame_end = end_frame
 
         return {'FINISHED'}
+    
+    def update_props_from_context(self, context):
+        props = context.scene.fd_swarm_planner_props
+        self.min_distance, self.speed, self.use_faces = props.min_distance, props.speed, props.use_faces
 
+
+class SwarmPlanner(bpy.types.Operator, SwarmPlannerBase):
+    """Plan drone swarm transition to selected formation"""
+    bl_idname = "object.swarm_plan"
+    bl_label = "Swarm - Plan transition"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def invoke(self, context, event):
+        self.update_props_from_context(context)
+        wm = context.window_manager
+        return wm.invoke_props_dialog(self)
+
+class SwarmPlannerButton(bpy.types.Operator, SwarmPlannerBase):
+    """Plan drone swarm transition to selected formation"""
+    bl_idname = "object.swarm_plan_button"
+    bl_label = "Swarm - Plan transition"
+    bl_options = {'REGISTER', 'UNDO'}
+
+    def invoke(self, context, event):
+        self.update_props_from_context(context)
+        return self.execute(context)

@@ -65,21 +65,6 @@ class FD_SwarmInit(Panel):
         row.operator("object.swarm_init_button")
 
 
-class FD_SwarmPlan(Panel):
-    """Creates sub-panel."""
-    bl_label = "Swarm plan"
-    bl_idname = "FD_SwarmPlan"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = "FlyinDiamonds"
-    bl_parent_id = "FD_PlanningPanel"
-
-    def draw(self, context):
-        layout = self.layout
-
-        row = layout.row()
-        row.operator("object.swarm_plan")
-
 
 
 class FD_SwarmDistance(Panel):
@@ -93,9 +78,12 @@ class FD_SwarmDistance(Panel):
 
     def draw(self, context):
         layout = self.layout
+        props = context.scene.fd_swarm_distance_props
 
         row = layout.row()
-        row.operator("object.swarm_distance")
+        row.prop(props, 'min_distance')
+        row = layout.row()
+        row.operator("object.swarm_distance_button")
 
 
 class FD_SwarmSpeed(Panel):
@@ -109,9 +97,35 @@ class FD_SwarmSpeed(Panel):
 
     def draw(self, context):
         layout = self.layout
+        props = context.scene.fd_swarm_speed_props
 
         row = layout.row()
-        row.operator("object.swarm_speed")
+        row.prop(props, 'max_speed')
+        row = layout.row()
+        row.operator("object.swarm_speed_button")
+
+
+class FD_SwarmPlan(Panel):
+    """Creates sub-panel."""
+    bl_label = "Swarm plan"
+    bl_idname = "FD_SwarmPlan"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "FlyinDiamonds"
+    bl_parent_id = "FD_PlanningPanel"
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.fd_swarm_planner_props
+
+        row = layout.row()
+        row.prop(props, 'min_distance')
+        row = layout.row()
+        row.prop(props, 'speed')
+        row = layout.row()
+        row.prop(props, 'use_faces')
+        row = layout.row()
+        row.operator("object.swarm_plan_button")
 
 
 class FD_ColorPanel(Panel):
