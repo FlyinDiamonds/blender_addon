@@ -4,7 +4,7 @@ from .SwarmInit import SwarmInit
 from .SwarmPlanner import SwarmPlanner
 from .SwarmExporter import SwarmExporter
 from .SwarmPainter import SwarmPainter
-from .SwarmArea import SwarmArea
+from .SwarmArea import SwarmArea, SwarmAreaButton
 from .SwarmSpeed import SwarmSpeed
 from .SwarmDistance import SwarmDistance
 
@@ -17,6 +17,7 @@ menu_classes = (
     SwarmArea,
     SwarmSpeed,
     SwarmDistance,
+    SwarmAreaButton,
 )
 
 
@@ -52,6 +53,8 @@ def register():
 
     bpy.utils.register_class(SwarmDistance)
     bpy.types.VIEW3D_MT_object.append(menu_functions[6])
+
+    bpy.utils.register_class(SwarmAreaButton)
 
 
 def unregister():

@@ -22,5 +22,5 @@ def register():
 
 
 def unregister():
-    for cls in classes:
+    for cls in reversed(classes):
         unregister_class(cls)

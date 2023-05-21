@@ -33,9 +33,15 @@ class FD_SwarmArea(Panel):
 
     def draw(self, context):
         layout = self.layout
+        props = context.scene.fd_swarm_area_props
 
         row = layout.row()
-        row.operator("view3d.swarm_area")
+        row.prop(props, 'point0')
+        row = layout.row()
+        row.prop(props, 'point1')
+
+        row = layout.row()
+        row.operator("view3d.swarm_area_button")
 
 
 class FD_SwarmInit(Panel):
@@ -49,7 +55,6 @@ class FD_SwarmInit(Panel):
 
     def draw(self, context):
         layout = self.layout
-
         row = layout.row()
         row.operator("object.swarm_init")
 
