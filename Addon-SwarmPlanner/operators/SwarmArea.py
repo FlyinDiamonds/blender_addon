@@ -75,7 +75,10 @@ class SwarmAreaBase:
             bpy.types.SpaceView3D.draw_handler_add(draw_cube, (), 'WINDOW', 'POST_VIEW')
 
         return {"FINISHED"}
-
+    
+    def update_props_from_context(self, context):
+        props = context.scene.fd_swarm_area_props
+        self.point0, self.point1 = props.point0, props.point1
 
 
 class SwarmArea(bpy.types.Operator, SwarmAreaBase):
@@ -84,10 +87,8 @@ class SwarmArea(bpy.types.Operator, SwarmAreaBase):
     bl_label = "Swarm - Set area"
 
     def invoke(self, context, event):
+        self.update_props_from_context(context)
         wm = context.window_manager
-        props = context.scene.fd_swarm_area_props
-        self.point0, self.point1 = props.point0, props.point1
-        
         return wm.invoke_props_dialog(self)
 
 
@@ -98,7 +99,5 @@ class SwarmAreaButton(bpy.types.Operator, SwarmAreaBase):
     bl_label = "Swarm - Set area"
 
     def invoke(self, context, event):
-        props = context.scene.fd_swarm_area_props
-        self.point0, self.point1 = props.point0, props.point1
-
+        self.update_props_from_context(context)
         return self.execute(context)
