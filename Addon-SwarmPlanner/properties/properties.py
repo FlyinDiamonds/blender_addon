@@ -26,4 +26,6 @@ class FD_SwarmPlannerProps(PropertyGroup):
 
 
 class FD_SwarmSpeedProps(PropertyGroup):
-    max_speed: bpy.props.FloatProperty(name="Max drone speed", default=5.0, min=1.0, max=10.0)
+    max_speed_vertical: bpy.props.FloatProperty(name="Vertical max drone speed", default=5.0, min=1.0, max=10.0)
+    max_speed_horizontal: bpy.props.FloatProperty(name="Horizontal max drone speed", default=5.0, min=1.0, max=10.0)
+

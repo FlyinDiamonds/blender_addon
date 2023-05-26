@@ -100,7 +100,9 @@ class FD_SwarmSpeed(Panel):
         props = context.scene.fd_swarm_speed_props
 
         row = layout.row()
-        row.prop(props, 'max_speed')
+        row.prop(props, 'max_speed_vertical')
+        row = layout.row()
+        row.prop(props, 'max_speed_horizontal')
         row = layout.row()
         row.operator("object.swarm_speed_button")
 

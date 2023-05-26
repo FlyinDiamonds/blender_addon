@@ -22,7 +22,7 @@ def calculate_danger_zone_distance(p1:FlightPath, p2:FlightPath, crossing_info:C
 
     cos_a = np.dot(u, v)/np.linalg.norm(u)/np.linalg.norm(v)
 
-    if cos_a == 1:
+    if cos_a >= 1:
         #parallel
         if crossing_info.p1_distance > p1.length or -crossing_info.p1_distance > p2.length:
             return

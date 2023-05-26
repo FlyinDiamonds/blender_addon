@@ -1,15 +1,12 @@
 import bpy
 import numpy as np
-import gpu
-from gpu_extras.batch import batch_for_shader
-import logging
-from mathutils import Color
 from .drawFunctions import enable_draw_speed
 
 
 class SwarmSpeedBase:
     """Set color for selected drones"""
-    max_speed: bpy.props.FloatProperty(name="Max drone speed", default=5.0, min=1.0, max=10.0)
+    max_speed_vertical: bpy.props.FloatProperty(name="Vertical max drone speed", default=5.0, min=1.0, max=10.0)
+    max_speed_horizontal: bpy.props.FloatProperty(name="Horizontal max drone speed", default=5.0, min=1.0, max=10.0)
 
     def execute(self, context):
         scene = context.scene
@@ -29,10 +26,13 @@ class SwarmSpeedBase:
             context.area.header_text_set(f"Processing frame: {frame}/{scene.frame_end}  ({round(frame/scene.frame_end*100,1)}%)")
 
             scene.frame_set(frame)
-            position_delta = np.array([np.linalg.norm(obj.location - pos) for obj,pos in zip(drones,positions) ])
+
+            position_deltas = np.array([np.array(obj.location - pos) for obj,pos in zip(drones,positions) ])
             positions = [obj.location.copy() for obj in drones]
 
-            violations = position_delta > self.max_speed/fps
+            violations = [abs(d[2]) > self.max_speed_vertical/fps
+                          or np.linalg.norm(d[:2]) > self.max_speed_horizontal/fps
+                          for d in position_deltas]
 
             for obj, violation, prev_violation in zip(drones, violations, prev_violations):
                 if violation == prev_violation:
@@ -61,7 +61,8 @@ class SwarmSpeedBase:
 
     def update_props_from_context(self, context):
         props = context.scene.fd_swarm_speed_props
-        self.max_speed = props.max_speed
+        self.max_speed_vertical = props.max_speed_vertical
+        self.max_speed_horizontal = props.max_speed_horizontal
 
 
 
