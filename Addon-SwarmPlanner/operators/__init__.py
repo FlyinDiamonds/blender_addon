@@ -3,7 +3,7 @@ import bpy
 from .SwarmInit import SwarmInit, SwarmInitButton
 from .SwarmPlanner import SwarmPlanner, SwarmPlannerButton
 from .SwarmExporter import SwarmExporter
-from .SwarmPainter import SwarmPainter
+from .SwarmPainter import SwarmPainter, SwarmPainterButton
 from .SwarmArea import SwarmArea, SwarmAreaButton
 from .SwarmSpeed import SwarmSpeed, SwarmSpeedButton
 from .SwarmDistance import SwarmDistance, SwarmDistanceButton
@@ -36,6 +36,7 @@ button_classes = (
     SwarmDistanceButton,
     SwarmSpeedButton,
     SwarmPlannerButton,
+    SwarmPainterButton,
 )
 
 
