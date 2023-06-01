@@ -166,10 +166,11 @@ class FD_ColorMethod(Panel):
         color_method_index = int(props.color_method_dropdown)
 
         row = layout.row()
-        row.prop(props, 'color_method_dropdown')
+        row.prop(props, 'color_method_dropdown', expand=True)
+
         if color_method_index == 0:
             row = layout.row()
-            row.prop(props, 'color_pallette')
+            row.prop(props, 'color_pallette', expand=True, icon_only=True)
         elif color_method_index == 1:
             row = layout.row()
             row.prop(props, 'color_picker')
@@ -191,7 +192,8 @@ class FD_SelectMethod(Panel):
         select_method_index = int(props.select_method_dropdown)
 
         row = layout.row()
-        row.prop(props, 'select_method_dropdown')
+        row.prop(props, 'select_method_dropdown', expand=True)
+
         if select_method_index == 0:
             # select in scene
             pass
@@ -201,13 +203,27 @@ class FD_SelectMethod(Panel):
         elif select_method_index == 2:
             row = layout.row()
             row.prop(props, 'random_percentage')
+
         row = layout.row()
         row.prop(props, 'invert_selection')
+
+
+class FD_ColorProps(Panel):
+    """Creates side panel."""
+    bl_label = "Swarm select method"
+    bl_idname = "FD_ColorProps"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "FlyinDiamonds"
+    bl_parent_id = "FD_ColorPanel"
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.fd_swarm_color_props
+
         row = layout.row()
         row.prop(props, 'step_change')
         row.operator("object.swarm_paint_button")
-
-
 
 
 class FD_ExportPanel(Panel):

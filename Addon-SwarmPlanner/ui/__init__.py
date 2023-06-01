@@ -14,7 +14,8 @@ classes = (
     panels.FD_SwarmDistance,
     panels.FD_SwarmSpeed,
     panels.FD_ColorMethod,
-    panels.FD_SelectMethod
+    panels.FD_SelectMethod,
+    panels.FD_ColorProps,
 )
 
 
