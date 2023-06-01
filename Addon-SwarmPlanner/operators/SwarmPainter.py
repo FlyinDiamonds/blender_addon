@@ -5,7 +5,16 @@ from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProper
 
 class SwarmPainterBase:
     """Initialize drone swarm"""
-    color_pallette: FloatProperty(name="Vertical max drone speed", default=5.0, min=1.0, max=10.0)
+    color_pallette: EnumProperty(
+        items=(('0','WHITE','White color', 'SNAP_FACE'),
+                ('1','BLACK','Black color', 'SEQUENCE_COLOR_09'),
+               ('2','RED','Red color', 'SEQUENCE_COLOR_01'),
+               ('3','GREEN','Green color', 'SEQUENCE_COLOR_04'),
+               ('4','BLUE','Blue color', 'SEQUENCE_COLOR_05')),
+        name="Color pallette",
+        default="0",
+        description="Pick color from color pallette",
+    )
     color_picker: FloatVectorProperty(
              name = "Color Picker",
              subtype = "COLOR",
@@ -21,7 +30,9 @@ class SwarmPainterBase:
         description="Tooltip for the Dropdownbox",
     )
     select_method_dropdown: EnumProperty(
-        items=(('0','Selected','Selected drones'), ('1','In mesh','Select by object'), ('2','Random','Select random')),
+        items=(('0','Selected','Selected drones', 'RESTRICT_SELECT_OFF'),
+               ('1','In mesh','Select by object', 'MESH_MONKEY'),
+               ('2','Random','Select random', 'TEXTURE')),
         name="Select method",
         default="0",
         description="Tooltip for the Dropdownbox",
@@ -29,7 +40,7 @@ class SwarmPainterBase:
     invert_selection: BoolProperty(name="Invert selection", default=False)
     select_mesh: PointerProperty(type=bpy.types.Object)
     random_percentage: IntProperty(name="Percentage", default=50, min=1, max=100)
-    step_change: bpy.props.BoolProperty(name="Step change", default=True)
+    step_change: BoolProperty(name="Step change", default=True)
 
     def execute(self, context):
         color_method_index = int(self.color_method_dropdown)
@@ -43,7 +54,9 @@ class SwarmPainterBase:
         if select_method_index == 0:
             drones = [drone for drone in all_drones if drone in context.selected_objects]
         elif select_method_index == 1:
-            drones = self.select_mesh
+            # TODO check that object is selected
+            drones = []
+            # drones = [drone for drone in all_drones if is_drone_inside_mesh(drone, self.select_mesh)]
         elif select_method_index == 2:
             drones = context.selected_objects # TODO random
         

@@ -33,12 +33,22 @@ class FD_SwarmSpeedProps(PropertyGroup):
 def fd_color_method_list(self, context):
     return (('0','Pallete','Color pallete'), ('1','Picker','Color picker'))
 
+
 def fd_select_mesh_poll(self, object):
-    return object.type == 'MESH'
+    return object.type == 'MESH' and not object.name.startswith("Drone")
 
 
 class FD_SwarmColorProps(PropertyGroup):
-    color_pallette: FloatProperty(name="Vertical max drone speed", default=5.0, min=1.0, max=10.0)
+    color_pallette: EnumProperty(
+        items=(('0','WHITE','White color', 'SNAP_FACE', 0),
+                ('1','BLACK','Black color', 'SEQUENCE_COLOR_09', 1),
+               ('2','RED','Red color', 'SEQUENCE_COLOR_01', 2),
+               ('3','GREEN','Green color', 'SEQUENCE_COLOR_04', 3),
+               ('4','BLUE','Blue color', 'SEQUENCE_COLOR_05', 4)),
+        name="Color pallette",
+        default="0",
+        description="Pick color from color pallette",
+    )
     color_picker: FloatVectorProperty(
              name = "Color Picker",
              subtype = "COLOR",
@@ -48,18 +58,20 @@ class FD_SwarmColorProps(PropertyGroup):
              size = 4
              )
     color_method_dropdown: EnumProperty(
-        items=(('0','Pallete','Color pallete'), ('1','Picker','Color picker')),
+        items=(('0','Pallete','Color pallete', 'COLOR', 0), ('1','Picker','Color picker', 'EYEDROPPER', 1)),
         name="Color method",
         default="0",
         description="Tooltip for the Dropdownbox",
     )
     select_method_dropdown: EnumProperty(
-        items=(('0','Selected','Selected drones'), ('1','In mesh','Select by object'), ('2','Random','Select random')),
+        items=(('0','Selected','Selected drones', 'RESTRICT_SELECT_OFF', 0),
+               ('1','In mesh','Select by object', 'MESH_MONKEY', 1),
+               ('2','Random','Select random', 'TEXTURE', 2)),
         name="Select method",
         default="0",
         description="Tooltip for the Dropdownbox",
     )
     invert_selection: BoolProperty(name="Invert selection", default=False)
-    select_mesh: PointerProperty(type=bpy.types.Object, poll=fd_select_mesh_poll)
+    select_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     random_percentage: IntProperty(name="Percentage", default=50, min=1, max=100)
-    step_change: bpy.props.BoolProperty(name="Step change", default=True)
+    step_change: BoolProperty(name="Step change", default=True)
