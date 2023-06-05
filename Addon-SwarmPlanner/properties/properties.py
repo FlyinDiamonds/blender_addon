@@ -39,6 +39,12 @@ def fd_select_mesh_poll(self, object):
 
 
 class FD_SwarmColorProps(PropertyGroup):
+    color_method_dropdown: EnumProperty(
+        items=(('0','Pallete','Color pallete', 'COLOR', 0), ('1','Picker','Color picker', 'EYEDROPPER', 1)),
+        name="Color method",
+        default="0",
+        description="Tooltip for the Dropdownbox",
+    )
     color_pallette: EnumProperty(
         items=(('0','WHITE','White color', 'SNAP_FACE', 0),
                 ('1','BLACK','Black color', 'SEQUENCE_COLOR_09', 1),
@@ -57,12 +63,6 @@ class FD_SwarmColorProps(PropertyGroup):
              default = (1.0,1.0,1.0,1.0),
              size = 4
              )
-    color_method_dropdown: EnumProperty(
-        items=(('0','Pallete','Color pallete', 'COLOR', 0), ('1','Picker','Color picker', 'EYEDROPPER', 1)),
-        name="Color method",
-        default="0",
-        description="Tooltip for the Dropdownbox",
-    )
     select_method_dropdown: EnumProperty(
         items=(('0','Selected','Selected drones', 'RESTRICT_SELECT_OFF', 0),
                ('1','In mesh','Select by object', 'MESH_MONKEY', 1),
@@ -71,7 +71,8 @@ class FD_SwarmColorProps(PropertyGroup):
         default="0",
         description="Tooltip for the Dropdownbox",
     )
-    invert_selection: BoolProperty(name="Invert selection", default=False)
+    
     select_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
-    random_percentage: IntProperty(name="Percentage", default=50, min=1, max=100)
+    random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
+    invert_selection: BoolProperty(name="Invert selection", default=False)
     step_change: BoolProperty(name="Step change", default=True)
