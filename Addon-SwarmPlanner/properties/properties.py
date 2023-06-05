@@ -31,7 +31,22 @@ class FD_SwarmSpeedProps(PropertyGroup):
 
 
 def fd_color_method_list(self, context):
-    return (('0','Pallete','Color pallete'), ('1','Picker','Color picker'))
+    return (('0','Pallete','Color pallete', 'COLOR', 0),
+            ('1','Picker','Color picker', 'EYEDROPPER', 1))
+
+
+def fd_color_pallette_list(self, context):
+    return (('0','WHITE','White color', 'SNAP_FACE', 0),
+            ('1','BLACK','Black color', 'SEQUENCE_COLOR_09', 1),
+            ('2','RED','Red color', 'SEQUENCE_COLOR_01', 2),
+            ('3','GREEN','Green color', 'SEQUENCE_COLOR_04', 3),
+            ('4','BLUE','Blue color', 'SEQUENCE_COLOR_05', 4))
+
+
+def fd_select_method_list(self, context):
+    return (('0','Selected','Selected drones', 'RESTRICT_SELECT_OFF', 0),
+            ('1','In mesh','Select by object', 'MESH_MONKEY', 1),
+            ('2','Random','Select random', 'TEXTURE', 2))
 
 
 def fd_select_mesh_poll(self, object):
@@ -40,19 +55,15 @@ def fd_select_mesh_poll(self, object):
 
 class FD_SwarmColorProps(PropertyGroup):
     color_method_dropdown: EnumProperty(
-        items=(('0','Pallete','Color pallete', 'COLOR', 0), ('1','Picker','Color picker', 'EYEDROPPER', 1)),
+        items=fd_color_method_list,
         name="Color method",
-        default="0",
-        description="Tooltip for the Dropdownbox",
+        default=0,
+        description="Pick method for drone painting",
     )
     color_pallette: EnumProperty(
-        items=(('0','WHITE','White color', 'SNAP_FACE', 0),
-                ('1','BLACK','Black color', 'SEQUENCE_COLOR_09', 1),
-               ('2','RED','Red color', 'SEQUENCE_COLOR_01', 2),
-               ('3','GREEN','Green color', 'SEQUENCE_COLOR_04', 3),
-               ('4','BLUE','Blue color', 'SEQUENCE_COLOR_05', 4)),
+        items=fd_color_pallette_list,
         name="Color pallette",
-        default="0",
+        default=0,
         description="Pick color from color pallette",
     )
     color_picker: FloatVectorProperty(
@@ -64,14 +75,11 @@ class FD_SwarmColorProps(PropertyGroup):
              size = 4
              )
     select_method_dropdown: EnumProperty(
-        items=(('0','Selected','Selected drones', 'RESTRICT_SELECT_OFF', 0),
-               ('1','In mesh','Select by object', 'MESH_MONKEY', 1),
-               ('2','Random','Select random', 'TEXTURE', 2)),
+        items=fd_select_method_list,
         name="Select method",
-        default="0",
-        description="Tooltip for the Dropdownbox",
+        default=0,
+        description="Pick method for drone selection",
     )
-    
     select_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
     invert_selection: BoolProperty(name="Invert selection", default=False)
