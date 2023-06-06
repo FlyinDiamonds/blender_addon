@@ -199,7 +199,7 @@ class FD_SelectMethod(Panel):
             pass
         elif select_method_index == 1:
             row = layout.row()
-            row.prop_search(props, "select_mesh", context.scene, "objects")
+            row.prop_search(props, "selected_mesh", context.scene, "objects")
         elif select_method_index == 2:
             row = layout.row()
             row.prop(props, 'random_percentage')
@@ -210,7 +210,7 @@ class FD_SelectMethod(Panel):
 
 class FD_ColorProps(Panel):
     """Creates side panel."""
-    bl_label = "Swarm select method"
+    bl_label = "Swarm apply color"
     bl_idname = "FD_ColorProps"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"

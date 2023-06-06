@@ -45,10 +45,53 @@ class SwarmPainterBase:
         default=0,
         description="Pick method for drone selection",
     )
-    select_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
+    selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
     invert_selection: BoolProperty(name="Invert selection", default=False)
     step_change: BoolProperty(name="Step change", default=True)
+
+    @classmethod
+    def draw_with_layout(self, context, layout):
+        # TODO may be extract to function as name(obj: Obj, context, layout), not sure if its good way
+        props = context.scene.fd_swarm_color_props
+
+        color_method_index = int(props.color_method_dropdown)
+
+        row = layout.row()
+        row.prop(props, 'color_method_dropdown', expand=True)
+
+        if color_method_index == 0:
+            row = layout.row()
+            row.prop(props, 'color_pallette', expand=True)
+        elif color_method_index == 1:
+            row = layout.row()
+            row.prop(props, 'color_picker')
+
+        props = context.scene.fd_swarm_color_props
+
+        select_method_index = int(props.select_method_dropdown)
+
+        row = layout.row()
+        row.prop(props, 'select_method_dropdown', expand=True)
+
+        if select_method_index == 0:
+            # selected in scene
+            pass
+        elif select_method_index == 1:
+            row = layout.row()
+            row.prop_search(props, "selected_mesh", context.scene, "objects")
+        elif select_method_index == 2:
+            row = layout.row()
+            row.prop(props, 'random_percentage')
+
+        row = layout.row()
+        row.prop(props, 'invert_selection')
+
+        props = context.scene.fd_swarm_color_props
+
+        row = layout.row()
+        row.prop(props, 'step_change')
+        row.operator("object.swarm_paint_button")
 
     def execute(self, context):
         drones = []
@@ -64,8 +107,8 @@ class SwarmPainterBase:
         if select_method_index == 0:
             drones = [drone for drone in all_drones if drone in context.selected_objects]
         elif select_method_index == 1:
-            if self.select_mesh:
-                drones = [drone for drone in all_drones if is_drone_inside_mesh(drone, self.select_mesh)]
+            if self.selected_mesh:
+                drones = [drone for drone in all_drones if is_drone_inside_mesh(drone, self.selected_mesh)]
         elif select_method_index == 2:
             num_of_drones = round(len(all_drones) / 100 * self.random_percentage)
             drones = random.sample(all_drones, num_of_drones)
@@ -94,7 +137,7 @@ class SwarmPainterBase:
         self.select_method_dropdown, self.color_method_dropdown = props.select_method_dropdown, props.color_method_dropdown
         self.color_pallette, self.color_picker, self.color_method_dropdown = props.color_pallette, props.color_picker, props.color_method_dropdown
         self.invert_selection, self.step_change, self.random_percentage = props.invert_selection, props.step_change, props.random_percentage
-        self.select_mesh = props.select_mesh
+        self.selected_mesh = props.selected_mesh
         
 
 class SwarmPainter(bpy.types.Operator, SwarmPainterBase):
@@ -103,19 +146,23 @@ class SwarmPainter(bpy.types.Operator, SwarmPainterBase):
     bl_label = "Swarm - Set color"
     bl_options = {'REGISTER', 'UNDO'}
 
+    def draw(self, context):
+        self.draw_with_layout(context, self.layout)
+
     def invoke(self, context, event):
         self.update_props_from_context(context)
         wm = context.window_manager
         return wm.invoke_props_dialog(self)
 
-    # TODO to draw properly in pop up, copy paste layout from panels here
-    # def draw(self, context):
 
 class SwarmPainterButton(bpy.types.Operator, SwarmPainterBase):
     """Set color for selected drones"""
     bl_idname = "object.swarm_paint_button"
     bl_label = "Swarm - Set color"
     bl_options = {'REGISTER', 'UNDO'}
+
+    def draw(self, context):
+        self.draw_with_layout(context, self.layout)
 
     def invoke(self, context, event):
         self.update_props_from_context(context)

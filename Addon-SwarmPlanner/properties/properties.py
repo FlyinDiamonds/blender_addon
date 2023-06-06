@@ -80,7 +80,7 @@ class FD_SwarmColorProps(PropertyGroup):
         default=0,
         description="Pick method for drone selection",
     )
-    select_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
+    selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
     invert_selection: BoolProperty(name="Invert selection", default=False)
     step_change: BoolProperty(name="Step change", default=True)
