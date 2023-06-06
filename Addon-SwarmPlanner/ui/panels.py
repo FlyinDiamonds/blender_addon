@@ -170,7 +170,7 @@ class FD_ColorMethod(Panel):
 
         if color_method_index == 0:
             row = layout.row()
-            row.prop(props, 'color_pallette', expand=True, icon_only=True)
+            row.prop(props, 'color_pallette', expand=True)
         elif color_method_index == 1:
             row = layout.row()
             row.prop(props, 'color_picker')
@@ -195,7 +195,7 @@ class FD_SelectMethod(Panel):
         row.prop(props, 'select_method_dropdown', expand=True)
 
         if select_method_index == 0:
-            # select in scene
+            # selected in scene
             pass
         elif select_method_index == 1:
             row = layout.row()
