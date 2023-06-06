@@ -3,6 +3,7 @@ from mathutils import Color
 from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, PointerProperty
 
 from ..properties.properties import fd_color_method_list, fd_color_pallette_list, fd_select_method_list, fd_select_mesh_poll
+from ..utils.drone_in_mesh import is_drone_inside_mesh
 
 import random
 
@@ -50,6 +51,9 @@ class SwarmPainterBase:
     step_change: BoolProperty(name="Step change", default=True)
 
     def execute(self, context):
+        drones = []
+        all_drones = {drone for drone in context.scene.objects if drone.name.startswith("Drone")}
+
         color_method_index = int(self.color_method_dropdown)
         if color_method_index == 0:
             color = COLOR_PALLETTE[int(self.color_pallette)]
@@ -57,21 +61,18 @@ class SwarmPainterBase:
             color = self.color_picker
 
         select_method_index = int(self.select_method_dropdown)
-        all_drones = {drone for drone in context.scene.objects if drone.name.startswith("Drone")} # TODO not only selected
-        
         if select_method_index == 0:
             drones = [drone for drone in all_drones if drone in context.selected_objects]
         elif select_method_index == 1:
-            # TODO check that object is selected
-            drones = []
-            # drones = [drone for drone in all_drones if is_drone_inside_mesh(drone, self.select_mesh)]
+            if self.select_mesh:
+                drones = [drone for drone in all_drones if is_drone_inside_mesh(drone, self.select_mesh)]
         elif select_method_index == 2:
             num_of_drones = round(len(all_drones) / 100 * self.random_percentage)
             drones = random.sample(all_drones, num_of_drones)
-        
+
         if self.invert_selection:
             drones = [drone for drone in all_drones if drone not in drones]
-        
+
         for drone in drones:
             current_frame = context.scene.frame_current
 
