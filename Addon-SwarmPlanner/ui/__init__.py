@@ -7,6 +7,7 @@ from . import panels
 classes = (
     panels.FD_PlanningPanel,
     panels.FD_ColorPanel,
+    panels.FD_PainterPanel,
     panels.FD_ExportPanel,
     panels.FD_SwarmArea,
     panels.FD_SwarmInit,

@@ -226,6 +226,84 @@ class FD_ColorProps(Panel):
         row.operator("object.swarm_paint_button")
 
 
+class FD_PainterPanel(Panel):
+    """Creates side panel."""
+    bl_label = "Swarm painter"
+    bl_idname = "FD_PainterPanel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "FlyinDiamonds"
+
+    def draw_header_preset(self, context):
+        layout = self.layout
+
+        row = layout.row()
+        documentation_url = "https://github.com/FlyinDiamonds/blender_addon#flyindiamonds"
+        row.operator("wm.url_open", icon='QUESTION', text="").url = documentation_url
+
+    def draw(self, context):
+        layout = self.layout
+        props = context.scene.fd_swarm_painter_props
+
+        # FRAMES
+        frame_method_index = int(props.frame_method_dropdown)
+
+        box = layout.box()
+        row = box.row()
+        row.prop(props, 'frame_method_dropdown', expand=True)
+        row = box.row()
+        col = row.column()
+        col.prop(props, 'start_frame', expand=True)
+        if frame_method_index == 0:
+            col.enabled = False
+        col = row.column()
+        col.prop(props, 'end_frame', expand=True)
+
+        # COLOR
+        color_method_index = int(props.color_method_dropdown)
+
+        box = layout.box()
+        row = box.row()
+        row.prop(props, 'color_method_dropdown', expand=True)
+        if color_method_index == 0:
+            row = box.row()
+            row.prop(props, 'color_pallette', expand=True)
+        elif color_method_index == 1:
+            row = box.row()
+            row.prop(props, 'color_picker')
+        row = box.row()
+        col = row.column()
+        col.prop(props, 'background_color')
+        col = row.column()
+        col.prop(props, 'background_color_picker')
+        if not props.background_color:
+            col.enabled = False
+        
+        # SELECT
+        select_method_index = int(props.select_method_dropdown)
+
+        box = layout.box()
+        row = box.row()
+        row.prop(props, 'select_method_dropdown', expand=True)
+        if select_method_index == 0:
+            # selected in scene
+            pass
+        elif select_method_index == 1:
+            row = box.row()
+            row.prop_search(props, "selected_mesh", context.scene, "objects")
+        elif select_method_index == 2:
+            row = box.row()
+            row.prop(props, 'random_percentage')
+        
+        # FUNCTIONS
+        row = layout.row()
+        row.prop(props, 'invert_selection')
+
+        row = layout.row()
+        row.prop(props, 'step_change')
+        row.operator("object.swarm_paint_button")
+
+
 class FD_ExportPanel(Panel):
     """Creates side panel."""
     bl_label = "Swarm export"
