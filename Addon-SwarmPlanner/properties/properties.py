@@ -41,8 +41,8 @@ def fd_color_method_list(self, context):
 
 
 def fd_frame_method_list(self, context):
-    return (('0', 'From current', 'Start effect from current frame', 0),
-            ('1', 'From start', 'Start effect from start frame', 1), )
+    return (('0', 'Duration', 'Start effect from current frame', 0),
+            ('1', 'Range', 'Start effect from start frame', 1), )
 
 
 def fd_color_pallette_list(self, context):
@@ -116,7 +116,7 @@ class FD_SwarmPainterProps(PropertyGroup):
         description="Pick color from color pallette",
     )
     color_picker: FloatVectorProperty(
-             name = "Color Picker",
+             name = "Color",
              subtype = "COLOR",
              min = 0.0,
              max = 1.0,
@@ -124,14 +124,15 @@ class FD_SwarmPainterProps(PropertyGroup):
              size = 4
              )
     background_color_picker: FloatVectorProperty(
-             name = "Background color Picker",
+             name = "Background color",
              subtype = "COLOR",
              min = 0.0,
              max = 1.0,
              default = (0.0, 0.0, 0.0, 1.0),
              size = 4
              )
-    background_color: BoolProperty(name="Change background color", default=True)
+    background_color: BoolProperty(name="Override background", default=True)
+    fade_out: BoolProperty(name="Fade out", default=False)
     select_method_dropdown: EnumProperty(
         items=fd_select_method_list,
         name="Select method",
@@ -144,3 +145,4 @@ class FD_SwarmPainterProps(PropertyGroup):
     step_change: BoolProperty(name="Step change", default=True)
     start_frame: IntProperty(name="Start frame", default=0, min=0)
     end_frame: IntProperty(name="End frame", default=100, min=1)
+    frame_duration: IntProperty(name="Frame duration", default=10, min=0)

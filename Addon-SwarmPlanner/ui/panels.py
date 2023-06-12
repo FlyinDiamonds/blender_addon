@@ -250,19 +250,23 @@ class FD_PainterPanel(Panel):
 
         box = layout.box()
         row = box.row()
-        row.prop(props, 'frame_method_dropdown', expand=True)
+        row.label(text="Frames settings")
         row = box.row()
-        col = row.column()
-        col.prop(props, 'start_frame', expand=True)
+        row.prop(props, 'frame_method_dropdown', expand=True)
         if frame_method_index == 0:
-            col.enabled = False
-        col = row.column()
-        col.prop(props, 'end_frame', expand=True)
+            row = box.row()
+            row.prop(props, 'frame_duration', expand=True)
+        elif frame_method_index == 1:
+            row = box.row()
+            row.prop(props, 'start_frame', expand=True)
+            row.prop(props, 'end_frame', expand=True)
 
         # COLOR
         color_method_index = int(props.color_method_dropdown)
 
         box = layout.box()
+        row = box.row()
+        row.label(text="Color settings")
         row = box.row()
         row.prop(props, 'color_method_dropdown', expand=True)
         if color_method_index == 0:
@@ -278,11 +282,15 @@ class FD_PainterPanel(Panel):
         col.prop(props, 'background_color_picker')
         if not props.background_color:
             col.enabled = False
+        row = box.row()
+        row.prop(props, 'fade_out')
         
         # SELECT
         select_method_index = int(props.select_method_dropdown)
 
         box = layout.box()
+        row = box.row()
+        row.label(text="Select settings")
         row = box.row()
         row.prop(props, 'select_method_dropdown', expand=True)
         if select_method_index == 0:
@@ -294,11 +302,10 @@ class FD_PainterPanel(Panel):
         elif select_method_index == 2:
             row = box.row()
             row.prop(props, 'random_percentage')
+        row = box.row()
+        row.prop(props, 'invert_selection')
         
         # FUNCTIONS
-        row = layout.row()
-        row.prop(props, 'invert_selection')
-
         row = layout.row()
         row.prop(props, 'step_change')
         row.operator("object.swarm_paint_button")

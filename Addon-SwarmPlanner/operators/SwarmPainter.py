@@ -1,8 +1,21 @@
 import bpy
 from mathutils import Color
-from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, PointerProperty
+from bpy.props import (
+    BoolProperty,
+    FloatVectorProperty,
+    EnumProperty,
+    IntProperty,
+    FloatProperty,
+    PointerProperty,
+)
 
-from ..properties.properties import fd_frame_method_list, fd_color_method_list, fd_color_pallette_list, fd_select_method_list, fd_select_mesh_poll
+from ..properties.properties import (
+    fd_frame_method_list,
+    fd_color_method_list,
+    fd_color_pallette_list,
+    fd_select_method_list,
+    fd_select_mesh_poll,
+)
 from ..utils.drone_in_mesh import is_drone_inside_mesh
 
 import random
@@ -37,43 +50,52 @@ class SwarmPainterBase:
         description="Pick color from color pallette",
     )
     color_picker: FloatVectorProperty(
-             name = "Color Picker",
-             subtype = "COLOR",
-             min = 0.0,
-             max = 1.0,
-             default = (1.0, 1.0, 1.0, 1.0),
-             size = 4
-             )
+        name="Color",
+        subtype="COLOR",
+        min=0.0,
+        max=1.0,
+        default=(1.0, 1.0, 1.0, 1.0),
+        size=4,
+    )
     background_color_picker: FloatVectorProperty(
-             name = "Background color Picker",
-             subtype = "COLOR",
-             min = 0.0,
-             max = 1.0,
-             default = (0.0, 0.0, 0.0, 1.0),
-             size = 4
-             )
-    background_color: BoolProperty(name="Change background color", default=True)
+        name="Background",
+        subtype="COLOR",
+        min=0.0,
+        max=1.0,
+        default=(0.0, 0.0, 0.0, 1.0),
+        size=4,
+    )
+    background_color: BoolProperty(name="Override background", default=True)
+    fade_out: BoolProperty(name="Fade out", default=False)
     select_method_dropdown: EnumProperty(
         items=fd_select_method_list,
         name="Select method",
         default=0,
         description="Pick method for drone selection",
     )
-    selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
-    random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
+    selected_mesh: PointerProperty(
+        name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll
+    )
+    random_percentage: IntProperty(
+        name="Percentage to select", default=50, min=1, max=100
+    )
     invert_selection: BoolProperty(name="Invert selection", default=False)
     step_change: BoolProperty(name="Step change", default=True)
     start_frame: IntProperty(name="Start frame", default=0, min=0)
     end_frame: IntProperty(name="End frame", default=100, min=1)
+    frame_duration: IntProperty(name="Frame duration", default=10, min=0)
 
     def execute(self, context):
-        all_drones = {drone for drone in context.scene.objects if drone.name.startswith("Drone")}
+        all_drones = {
+            drone for drone in context.scene.objects if drone.name.startswith("Drone")
+        }
 
         frame_method_index = int(self.frame_method_dropdown)
-        start_frame, end_frame = self.start_frame, self.end_frame
         if frame_method_index == 0:
             start_frame = context.scene.frame_current
-        frames = [x for x in range(start_frame, end_frame + 1)]
+            end_frame = start_frame + self.frame_duration
+        elif frame_method_index == 1:
+            start_frame, end_frame = self.start_frame, self.end_frame
 
         color_method_index = int(self.color_method_dropdown)
         if color_method_index == 0:
@@ -81,11 +103,11 @@ class SwarmPainterBase:
             # colors_frames = [(start_frame, end_frame, COLOR_PALLETTE[int(self.color_pallette)])]
         elif color_method_index == 1:
             color = self.color_picker
-            #colors_frames = [(start_frame, end_frame, self.color_picker)]
+            # colors_frames = [(start_frame, end_frame, self.color_picker)]
         elif color_method_index == 2:
             color = self.color_picker
             # colors_frames = [COLOR_PALLETTE] # TODO picker
-        
+
         scene = bpy.data.scenes.get("Scene")
 
         for frame in range(start_frame, end_frame + 1):
@@ -95,10 +117,16 @@ class SwarmPainterBase:
             background_drones = set()
             select_method_index = int(self.select_method_dropdown)
             if select_method_index == 0:
-                drones = {drone for drone in all_drones if drone in context.selected_objects}
+                drones = {
+                    drone for drone in all_drones if drone in context.selected_objects
+                }
             elif select_method_index == 1:
                 if self.selected_mesh:
-                    drones = {drone for drone in all_drones if is_drone_inside_mesh(drone, self.selected_mesh)}
+                    drones = {
+                        drone
+                        for drone in all_drones
+                        if is_drone_inside_mesh(drone, self.selected_mesh)
+                    }
             elif select_method_index == 2:
                 num_of_drones = round(len(all_drones) / 100 * self.random_percentage)
                 drones = set(random.sample(all_drones, num_of_drones))
@@ -114,32 +142,52 @@ class SwarmPainterBase:
             for drone in drones:
                 mat = drone.data.materials[0]
                 if self.step_change:
-                    mat.keyframe_insert(data_path="diffuse_color", frame=frame-1)
-                    drone.keyframe_insert(data_path='["custom_color"]', frame=frame-1)
+                    mat.keyframe_insert(data_path="diffuse_color", frame=frame - 1)
+                    drone.keyframe_insert(data_path='["custom_color"]', frame=frame - 1)
 
                 mat.diffuse_color = color
-                drone["custom_color"] = [int(c*255) for c in list(color)[:3]]
+                drone["custom_color"] = [int(c * 255) for c in list(color)[:3]]
 
-                mat.keyframe_insert(data_path="diffuse_color", frame = frame)
-                drone.keyframe_insert(data_path='["custom_color"]', frame = frame)
+                mat.keyframe_insert(data_path="diffuse_color", frame=frame)
+                drone.keyframe_insert(data_path='["custom_color"]', frame=frame)
 
-        return {'FINISHED'}
+        return {"FINISHED"}
 
     def update_props_from_context(self, context):
         props = context.scene.fd_swarm_painter_props
-        self.select_method_dropdown, self.color_method_dropdown = props.select_method_dropdown, props.color_method_dropdown
-        self.color_pallette, self.color_picker, self.color_method_dropdown = props.color_pallette, props.color_picker, props.color_method_dropdown
-        self.background_color, self.background_color_picker = props.background_color, props.background_color_picker
-        self.invert_selection, self.step_change, self.random_percentage = props.invert_selection, props.step_change, props.random_percentage
-        self.selected_mesh = props.selected_mesh
-        self.start_frame, self.end_frame = props.start_frame, props.end_frame
-        
+        self.select_method_dropdown, self.color_method_dropdown = (
+            props.select_method_dropdown,
+            props.color_method_dropdown,
+        )
+        self.color_pallette, self.color_picker, self.color_method_dropdown = (
+            props.color_pallette,
+            props.color_picker,
+            props.color_method_dropdown,
+        )
+        self.background_color, self.background_color_picker, self.fade_out = (
+            props.background_color,
+            props.background_color_picker,
+            props.fade_out,
+        )
+        self.step_change = props.step_change
+        self.selected_mesh, self.invert_selection, self.random_percentage = (
+            props.selected_mesh,
+            props.invert_selection,
+            props.random_percentage,
+        )
+        self.start_frame, self.end_frame, self.frame_duration = (
+            props.start_frame,
+            props.end_frame,
+            props.frame_duration,
+        )
+
 
 class SwarmPainter(bpy.types.Operator, SwarmPainterBase):
     """Set color for selected drones"""
+
     bl_idname = "object.swarm_painter"
     bl_label = "Swarm - Set color"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
 
     def invoke(self, context, event):
         self.update_props_from_context(context)
@@ -149,9 +197,10 @@ class SwarmPainter(bpy.types.Operator, SwarmPainterBase):
 
 class SwarmPainterButton(bpy.types.Operator, SwarmPainterBase):
     """Set color for selected drones"""
+
     bl_idname = "object.swarm_painter_button"
     bl_label = "Swarm - Set color"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
 
     def invoke(self, context, event):
         self.update_props_from_context(context)
