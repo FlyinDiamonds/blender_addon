@@ -283,7 +283,6 @@ class FD_PainterPanel(Panel):
         if not props.background_color:
             col.enabled = False
         row = box.row()
-        row.prop(props, 'fade_out')
         
         # SELECT
         select_method_index = int(props.select_method_dropdown)
@@ -307,8 +306,7 @@ class FD_PainterPanel(Panel):
         
         # FUNCTIONS
         row = layout.row()
-        row.prop(props, 'step_change')
-        row.operator("object.swarm_paint_button")
+        row.operator("object.swarm_painter_button")
 
 
 class FD_ExportPanel(Panel):

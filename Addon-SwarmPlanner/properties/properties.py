@@ -42,7 +42,7 @@ def fd_color_method_list(self, context):
 
 def fd_frame_method_list(self, context):
     return (('0', 'Duration', 'Start effect from current frame', 0),
-            ('1', 'Range', 'Start effect from start frame', 1), )
+            ('1', 'Range', 'Start effect from start frame', 1))
 
 
 def fd_color_pallette_list(self, context):
@@ -132,7 +132,6 @@ class FD_SwarmPainterProps(PropertyGroup):
              size = 4
              )
     background_color: BoolProperty(name="Override background", default=True)
-    fade_out: BoolProperty(name="Fade out", default=False)
     select_method_dropdown: EnumProperty(
         items=fd_select_method_list,
         name="Select method",
