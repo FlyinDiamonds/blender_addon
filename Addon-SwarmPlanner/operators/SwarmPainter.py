@@ -110,6 +110,9 @@ class SwarmPainterBase:
                     elif not drone['prev_selected'] and selected_now:
                         outer_keyframes.append((frame, drone, color))
                         inner_keyframes.append((frame - 1, drone, mat.diffuse_color))
+                    elif selected_now and frame == end_frame + 1:
+                        outer_keyframes.append((frame, drone, mat.diffuse_color))
+                        inner_keyframes.append((frame - 1, drone, color))
 
                 drone['prev_selected'] = selected_now
         
