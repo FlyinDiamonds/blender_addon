@@ -1,8 +1,12 @@
-import numpy as np
-
 from .classes import *
 
+
+def saturate(val, _up=1, _low=0):
+    return min(_up, max(_low, val))
+
+
 def calculate_danger_zone_distance(p1:FlightPath, p2:FlightPath, crossing_info:CrossingInfo, min_separation):
+    #here there be dragons
     if not crossing_info.valid:
         return
 
@@ -22,53 +26,51 @@ def calculate_danger_zone_distance(p1:FlightPath, p2:FlightPath, crossing_info:C
 
     cos_a = np.dot(u, v)/np.linalg.norm(u)/np.linalg.norm(v)
 
-    if cos_a >= 1:
+    if 1-cos_a*cos_a <= 0.01:
         #parallel
         if crossing_info.p1_distance > p1.length or -crossing_info.p1_distance > p2.length:
             return
+        if cos_a < 0:
+            # 180
+            return
 
-        if crossing_info.p1_distance >= 0:
-            crossing_info.p1_distance_to_dz_s = crossing_info.p1_distance
+        if crossing_info.p1_distance > crossing_info.p2_distance:
+            crossing_info.p1_distance_to_dz_s = crossing_info.p1_distance - crossing_info.p2_distance
             crossing_info.p1_distance_to_dz_e = p1.length
             crossing_info.p2_distance_to_dz_s = 0
-            crossing_info.p2_distance_to_dz_e = p1.length - crossing_info.p1_distance
+            crossing_info.p2_distance_to_dz_e = p1.length - (crossing_info.p1_distance - crossing_info.p2_distance)
         else:
-            crossing_info.p2_distance_to_dz_s = -crossing_info.p1_distance
-            crossing_info.p2_distance_to_dz_e = p2.length
             crossing_info.p1_distance_to_dz_s = 0
-            crossing_info.p1_distance_to_dz_e = p2.length + crossing_info.p1_distance
+            crossing_info.p1_distance_to_dz_e = p2.length - (crossing_info.p2_distance - crossing_info.p1_distance)
+            crossing_info.p2_distance_to_dz_s = crossing_info.p2_distance - crossing_info.p1_distance
+            crossing_info.p2_distance_to_dz_e = p2.length
         return
 
     sin_a = np.sqrt(1-cos_a*cos_a)
-    projected_distance_to_influence = horizontal_separation/sin_a #y
-    distance_to_infulence = np.sqrt(projected_distance_to_influence*projected_distance_to_influence - horizontal_separation*horizontal_separation) #x
 
-    p1_ends_before_dz  = crossing_info.p1_distance - horizontal_separation - distance_to_infulence > p1.length
-    p1_starts_after_dz = crossing_info.p1_distance + horizontal_separation + distance_to_infulence <= 0
-    p1_endangers_p2 = not (p1_ends_before_dz or p1_starts_after_dz)
+    max_influence = horizontal_separation * cos_a / sin_a
+    if cos_a / sin_a < 0.01:
+        max_influence = 0.01
+    projected_max_influence = horizontal_separation / sin_a
 
-    p2_ends_before_dz  = crossing_info.p2_distance - horizontal_separation - distance_to_infulence > p2.length
-    p2_starts_after_dz = crossing_info.p2_distance + horizontal_separation + distance_to_infulence <= 0
-    p2_endangers_p1 = not (p2_ends_before_dz or p2_starts_after_dz)
 
-    if p1_endangers_p2 and p2_endangers_p1:
-        # do p1
-        delta_start_p1 = max(-1, min(1, (
-                    horizontal_separation + crossing_info.p2_distance) / distance_to_infulence)) * projected_distance_to_influence
-        delta_end_p1 = max(-1, min(1, (
-                    crossing_info.p2_distance - p2.length - horizontal_separation) / distance_to_infulence)) * projected_distance_to_influence
+    p1_influence_start = min(crossing_info.p1_distance + horizontal_separation, max_influence)
+    p1_influence_start_projected = projected_max_influence * p1_influence_start / max_influence
+    crossing_info.p2_distance_to_dz_s = crossing_info.p2_distance - p1_influence_start_projected
 
-        crossing_info.p1_distance_to_dz_s = crossing_info.p1_distance - delta_start_p1
-        crossing_info.p1_distance_to_dz_e = crossing_info.p1_distance - delta_end_p1
+    p1_influence_end = min(p1.length - crossing_info.p1_distance + horizontal_separation, max_influence)
+    p1_influence_end_projected = projected_max_influence * p1_influence_end / max_influence
+    crossing_info.p2_distance_to_dz_e = crossing_info.p2_distance + p1_influence_end_projected
 
-        # do p2
-        delta_start_p2 = max(-1, min(1, (
-                horizontal_separation + crossing_info.p1_distance) / distance_to_infulence)) * projected_distance_to_influence
-        delta_end_p2 = max(-1, min(1, (
-                crossing_info.p1_distance - p1.length - horizontal_separation) / distance_to_infulence)) * projected_distance_to_influence
+    p2_influence_start = min(crossing_info.p2_distance + horizontal_separation, max_influence)
+    p2_influence_start_projected = projected_max_influence * p2_influence_start / max_influence
+    crossing_info.p1_distance_to_dz_s = crossing_info.p1_distance - p2_influence_start_projected
 
-        crossing_info.p2_distance_to_dz_s = crossing_info.p2_distance - delta_start_p2
-        crossing_info.p2_distance_to_dz_e = crossing_info.p2_distance - delta_end_p2
+    p2_influence_end = min(p2.length - crossing_info.p2_distance + horizontal_separation, max_influence)
+    p2_influence_end_projected = projected_max_influence * p2_influence_end / max_influence
+    crossing_info.p1_distance_to_dz_e = crossing_info.p1_distance + p2_influence_end_projected
+
+    return
 
 
 def calculate_crossing(p1: FlightPath, p2:FlightPath) -> CrossingInfo:
@@ -120,22 +122,28 @@ def evaluate_danger(
 
     forbidden_delay_cnt = max(0, crossing_info.p2_distance_to_dz_s) - max(0, crossing_info.p1_distance_to_dz_s)
 
-    p1_inside_dz = crossing_info.p1_distance_to_dz_s <= 0 and crossing_info.p1_distance_to_dz_e >= p1.length
-    p2_inside_dz = crossing_info.p2_distance_to_dz_s <= 0 and crossing_info.p2_distance_to_dz_e >= p2.length
+    p1_starts_in_dz = crossing_info.p1_distance_to_dz_e > 0 and crossing_info.p1_distance_to_dz_s <= 0
+    p1_ends_in_dz = crossing_info.p1_distance_to_dz_e >= p1.length and crossing_info.p1_distance_to_dz_s < p1.length
+
+    p2_starts_in_dz = crossing_info.p2_distance_to_dz_e > 0 and crossing_info.p2_distance_to_dz_s <= 0
+    p2_ends_in_dz = crossing_info.p2_distance_to_dz_e >= p2.length and crossing_info.p2_distance_to_dz_s < p2.length
+
+    p1_inside_dz = p1_starts_in_dz and p1_ends_in_dz
+    p2_inside_dz = p2_starts_in_dz and p2_ends_in_dz
 
     if p1_inside_dz or p2_inside_dz:
-        return Collision(True, p1, p2, forbidden_delay_cnt, p2_first=crossing_info.p2_distance < crossing_info.p1_distance)
+        return Collision(True, p1, p2, forbidden_delay_cnt,
+                         p2_first=crossing_info.p2_distance < crossing_info.p1_distance)
 
-    if crossing_info.p2_distance_to_dz_e >= 0 >= crossing_info.p2_distance_to_dz_s:
-        # p2 starts in danger zone
-        return Collision(True, p1, p2, forbidden_delay_cnt, p2_first=True)
+    if p1_starts_in_dz and p2_starts_in_dz:
+        return Collision(True, p1, p2, forbidden_delay_cnt,
+                         p2_first=crossing_info.p2_distance < crossing_info.p1_distance)
 
-    if crossing_info.p1_distance_to_dz_e >= p1.length >= crossing_info.p1_distance_to_dz_s:
-        # p1 ends in danger zone
-        return Collision(True, p1, p2, forbidden_delay_cnt, p2_first=True)
+    if p1_ends_in_dz and p2_ends_in_dz:
+        return Collision(True, p1, p2, forbidden_delay_cnt,
+                         p2_first=p2.length - crossing_info.p2_distance > p1.length - crossing_info.p1_distance)
 
-    # crossing
-    return Collision(True, p1, p2, forbidden_delay_cnt, p2_first=False)
+    return Collision(True, p1, p2, forbidden_delay_cnt, p2_first=p1_ends_in_dz or p2_starts_in_dz)
 
 
 def detect_collisions(flight_paths, DANGER_ZONE):
