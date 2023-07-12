@@ -29,6 +29,10 @@ COLOR_PALLETTE = [
     (0.0, 0.0, 1.0, 1.0),
 ]
 
+def copy_color(color):
+    """Use instead of deepcopy, which fails on diffuse_color"""
+    return (color[0], color[1], color[2], color[3])
+
 
 class SwarmPainterBase:
     frame_method_dropdown: EnumProperty(
@@ -104,37 +108,21 @@ class SwarmPainterBase:
                     continue
 
                 if drone['prev_color'] != color:
-                    if drone['prev_selected'] and not selected_now:
-                        outer_keyframes.append((frame - 1, drone, mat.diffuse_color))
-                        inner_keyframes.append((frame, drone, color))
-                    elif not drone['prev_selected'] and selected_now:
-                        outer_keyframes.append((frame, drone, color))
-                        inner_keyframes.append((frame - 1, drone, mat.diffuse_color))
-                    elif selected_now and frame == end_frame + 1:
-                        outer_keyframes.append((frame, drone, mat.diffuse_color))
-                        inner_keyframes.append((frame - 1, drone, color))
+                    if not drone['prev_selected'] and selected_now:
+                        outer_keyframes.append((frame - 1, drone, copy_color(mat.diffuse_color)))
+                        inner_keyframes.append((frame, drone, copy_color(color)))
+                    elif selected_now and (not selected_now or frame == end_frame + 1):
+                        outer_keyframes.append((frame, drone, copy_color(mat.diffuse_color)))
+                        inner_keyframes.append((frame - 1, drone, copy_color(color)))
 
                 drone['prev_selected'] = selected_now
+                drone['prev_color'] = color
         
 
-        for frame, drone, diffuse_color in outer_keyframes:
-            mat = drone.data.materials[0]
-            mat.diffuse_color = diffuse_color
-            drone["custom_color"] = [int(c * 255) for c in list(diffuse_color)[:3]]
-            self.insert_keyframes(frame, drone, mat)
-        
-        for frame, drone, diffuse_color in inner_keyframes:
-            mat = drone.data.materials[0]
-            mat.diffuse_color = diffuse_color
-            drone["custom_color"] = [int(c * 255) for c in list(diffuse_color)[:3]]
-            self.insert_keyframes(frame, drone, mat)  
+        self.set_keyframes(outer_keyframes)
+        self.set_keyframes(inner_keyframes)
 
         return {"FINISHED"}
-
-    def insert_keyframes(self, frame, drone, mat):
-        print(f"Inserting keyframes on frame {frame}")
-        mat.keyframe_insert(data_path="diffuse_color", frame=frame)
-        drone.keyframe_insert(data_path='["custom_color"]', frame=frame)
 
     def get_color(self, frame):
         color_method_index = int(self.color_method_dropdown)
@@ -193,6 +181,18 @@ class SwarmPainterBase:
         elif frame_method_index == 1:
             start_frame, end_frame = self.start_frame, self.end_frame
         return start_frame, end_frame
+    
+    def set_keyframes(self, outer_keyframes):
+        for frame, drone, diffuse_color in outer_keyframes:
+            mat = drone.data.materials[0]
+            mat.diffuse_color = diffuse_color
+            drone["custom_color"] = [int(c * 255) for c in list(diffuse_color)[:3]]
+            self.insert_keyframes(frame, drone, mat)
+
+    def insert_keyframes(self, frame, drone, mat):
+        print(f"Inserting keyframes on frame {frame} mat {mat}")
+        mat.keyframe_insert(data_path="diffuse_color", frame=frame)
+        drone.keyframe_insert(data_path='["custom_color"]', frame=frame)
 
     def update_props_from_context(self, context):
         props = context.scene.fd_swarm_painter_props
@@ -225,7 +225,6 @@ class SwarmPainterBase:
 
 class SwarmPainter(bpy.types.Operator, SwarmPainterBase):
     """Set color for selected drones"""
-
     bl_idname = "object.swarm_painter"
     bl_label = "Swarm - Set color"
     bl_options = {"REGISTER", "UNDO"}
