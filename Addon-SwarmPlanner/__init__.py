@@ -3,6 +3,7 @@ import bpy
 from . import operators
 from . import properties
 from . import ui
+from .planning.statistics import statistics_usage
 
 
 bl_info = {
@@ -23,6 +24,7 @@ modules = (
 
 
 def register():
+    statistics_usage()
     for m in modules:
         m.register()
 
