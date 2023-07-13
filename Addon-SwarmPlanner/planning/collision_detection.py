@@ -29,9 +29,11 @@ def calculate_danger_zone_distance(p1:FlightPath, p2:FlightPath, crossing_info:C
     if 1-cos_a*cos_a <= 0.01:
         #parallel
         if crossing_info.p1_distance > p1.length or -crossing_info.p1_distance > p2.length:
+            crossing_info.valid = False
             return
         if cos_a < 0:
             # 180
+            crossing_info.valid = False
             return
 
         if crossing_info.p1_distance > crossing_info.p2_distance:
