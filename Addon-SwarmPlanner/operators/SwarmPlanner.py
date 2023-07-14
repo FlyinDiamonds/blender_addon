@@ -1,6 +1,6 @@
 import bpy
 
-from ..planning.planner import plan_fastest, get_max_time
+from ..planning.planner import plan, get_max_time
 
 
 class SwarmPlannerBase:
@@ -37,10 +37,10 @@ class SwarmPlannerBase:
 
 
         position_cnt = min(len(positions_source), len(positions_target))
-        flight_paths = plan_fastest(
+        flight_paths = plan(
             positions_source[:position_cnt],
             positions_target[:position_cnt],
-            self.speed, self.min_distance)
+            self.min_distance)
 
         frame_start = scene.frame_current
         last_frame = int(get_max_time(flight_paths, self.speed)*FRAMERATE) + frame_start
