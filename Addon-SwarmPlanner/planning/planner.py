@@ -2,6 +2,7 @@ from .classes import *
 
 from scipy.optimize import linear_sum_assignment
 from .collision_detection import detect_collisions
+from .statistics import statistics_formation
 from typing import List
 import time
 import numpy as np
@@ -45,6 +46,7 @@ def color_analog(_collisions:List[Collision], safe_delay):
 
 
 def plan(sg, tg, DANGER_ZONE):
+    statistics_formation(tg)
     formation_s = np.array(sg)
     formation_t = np.array(tg)
     # linear assignment
