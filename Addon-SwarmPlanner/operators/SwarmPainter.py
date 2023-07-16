@@ -93,31 +93,27 @@ class SwarmPainterBase:
 
         for frame in range(start_frame - 1, end_frame + 2):
             scene.frame_set(frame)
-            color = self.get_color(frame)
+            inner_color = self.get_color(frame)
+            self.resolve_selection(context, all_drones)
 
-            drones, background_drones = self.sort_drones(context, all_drones)
-
-            for drone in background_drones:
-                drone['prev_selected'] = False
-
-            selected_now = True
-            for drone in drones:
-                mat = drone.data.materials[0]
+            for drone in all_drones:
+                outer_color = drone.data.materials[0].diffuse_color
                 if drone['prev_color'] is None:
-                    drone['prev_color'] = mat.diffuse_color
+                    drone['prev_color'] = outer_color
                     continue
 
-                if drone['prev_color'] != color:
-                    if not drone['prev_selected'] and selected_now:
-                        outer_keyframes.append((frame - 1, drone, copy_color(mat.diffuse_color)))
-                        inner_keyframes.append((frame, drone, copy_color(color)))
-                    elif selected_now and (not selected_now or frame == end_frame + 1):
-                        outer_keyframes.append((frame, drone, copy_color(mat.diffuse_color)))
-                        inner_keyframes.append((frame - 1, drone, copy_color(color)))
+                if drone['prev_color'] != inner_color:
+                    if drone['selected'] and not drone['prev_selected']:
+                        outer_keyframes.append((frame - 1, drone, copy_color(outer_color)))
+                        inner_keyframes.append((frame, drone, copy_color(inner_color)))
+                    if not drone['selected'] and drone['prev_selected']:
+                        outer_keyframes.append((frame, drone, copy_color(outer_color)))
+                        inner_keyframes.append((frame - 1, drone, copy_color(inner_color)))
+                    if drone['selected'] and frame == end_frame + 1:
+                        outer_keyframes.append((frame, drone, copy_color(outer_color)))
+                        inner_keyframes.append((frame - 1, drone, copy_color(inner_color)))
 
-                drone['prev_selected'] = selected_now
-                drone['prev_color'] = color
-        
+                drone['prev_color'] = inner_color
 
         self.set_keyframes(outer_keyframes)
         self.set_keyframes(inner_keyframes)
@@ -138,30 +134,30 @@ class SwarmPainterBase:
 
         return color
 
-    def sort_drones(self, context, all_drones):
-        drones = set()
-        background_drones = set()
+    def resolve_selection(self, context, all_drones):
         select_method_index = int(self.select_method_dropdown)
+        selected_drones = set()
         if select_method_index == 0:
-            drones = {
+            selected_drones = {
                 drone for drone in all_drones if drone in context.selected_objects
             }
         elif select_method_index == 1:
             if self.selected_mesh:
-                drones = {
+                selected_drones = {
                     drone
                     for drone in all_drones
                     if is_drone_inside_mesh(drone, self.selected_mesh)
                 }
         elif select_method_index == 2:
             num_of_drones = round(len(all_drones) / 100 * self.random_percentage)
-            drones = set(random.sample(all_drones, num_of_drones))
+            selected_drones = set(random.sample(all_drones, num_of_drones))
 
-        if self.background_color:
-            background_drones = all_drones - drones
         if self.invert_selection:
-            drones, background_drones = background_drones, drones
-        return drones, background_drones
+            selected_drones = all_drones - selected_drones
+        
+        for drone in all_drones:
+            drone['prev_selected'] = drone['selected']
+            drone['selected'] = drone in selected_drones
 
     def get_all_drones(self, context):
         all_drones = set()
@@ -170,6 +166,7 @@ class SwarmPainterBase:
                 continue
             obj['prev_color'] = None
             obj['prev_selected'] = False
+            obj['selected'] = False
             all_drones.add(obj)
         return all_drones
 
