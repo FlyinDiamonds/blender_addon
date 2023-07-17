@@ -99,6 +99,17 @@ class SwarmPainterBase:
             for drone in all_drones:
                 outer_color = drone.data.materials[0].diffuse_color
 
+                if self.background_color:
+                    self.delete_keyframes(drone, frame)
+
+                if self.background_color:
+                    if frame == start_frame:
+                        outer_keyframes.append((frame - 1, drone, copy_color(drone.data.materials[0].diffuse_color)))
+                        outer_keyframes.append((frame, drone, copy_color(self.background_color_picker)))
+                    elif frame == end_frame + 1:
+                        outer_keyframes.append((frame - 1, drone, copy_color(self.background_color_picker)))
+                        outer_keyframes.append((frame, drone, copy_color(drone.data.materials[0].diffuse_color)))
+
                 if not drone['selected'] and drone['prev_selected']:
                     outer_keyframes.append((frame, drone, copy_color(outer_color)))
                     inner_keyframes.append((frame - 1, drone, copy_color(inner_color)))
@@ -150,6 +161,7 @@ class SwarmPainterBase:
             selected_drones = all_drones - selected_drones
         
         for drone in all_drones:
+            drone['prev_color'] = None
             drone['prev_selected'] = drone['selected']
             drone['selected'] = drone in selected_drones
 
@@ -180,7 +192,13 @@ class SwarmPainterBase:
             print(f"Inserting keyframes on frame {frame} mat {mat}")
             mat.keyframe_insert(data_path="diffuse_color", frame=frame)
             drone.keyframe_insert(data_path='["custom_color"]', frame=frame)
-
+    
+    def delete_keyframes(self, drone, frame):
+        print(f"Deleting keyframes on frame {frame}")
+        mat = drone.data.materials[0]
+        mat.keyframe_delete(data_path="diffuse_color", frame=frame)
+        drone.keyframe_delete(data_path='["custom_color"]', frame=frame)
+        
     def update_props_from_context(self, context):
         props = context.scene.fd_swarm_painter_props
         self.select_method_dropdown, self.color_method_dropdown, self.frame_method_dropdown = (
