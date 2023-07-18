@@ -3,6 +3,7 @@ from .classes import *
 from scipy.optimize import linear_sum_assignment
 from .collision_detection import detect_collisions
 from .statistics import statistics_formation
+from .measure import get_min_distance
 from typing import List
 import time
 import numpy as np
@@ -49,13 +50,18 @@ def plan(sg, tg, DANGER_ZONE):
     statistics_formation(tg)
     formation_s = np.array(sg)
     formation_t = np.array(tg)
+
+    min_distance_sg = get_min_distance(formation_s, DANGER_ZONE) * 0.7
+    min_distance_tg = get_min_distance(formation_t, DANGER_ZONE) * 0.7
+    modified_danger_zone = min(DANGER_ZONE, min_distance_sg, min_distance_tg)
+
     # linear assignment
     cm = create_cost_matrix(formation_s, formation_t)
     rows, cols = linear_sum_assignment(cm)
     flight_paths = [FlightPath(formation_s[s], formation_t[t], s, t) for s, t in zip(rows, cols)]
 
     # collision check
-    detect_collisions(flight_paths, DANGER_ZONE)
+    detect_collisions(flight_paths, modified_danger_zone)
 
     # construct graph
     for path in flight_paths:
