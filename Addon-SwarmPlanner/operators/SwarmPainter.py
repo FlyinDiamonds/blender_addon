@@ -99,7 +99,7 @@ class SwarmPainterBase:
             for drone in all_drones:
                 outer_color = drone.data.materials[0].diffuse_color
 
-                if self.background_color:
+                if self.background_color or drone['selected']:
                     self.delete_keyframes(drone, frame)
 
                 if self.background_color:
