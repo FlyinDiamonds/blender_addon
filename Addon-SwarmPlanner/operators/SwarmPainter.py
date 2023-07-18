@@ -102,23 +102,22 @@ class SwarmPainterBase:
                 if self.background_color or drone['selected']:
                     self.delete_keyframes(drone, frame)
 
-                if self.background_color:
-                    if frame == start_frame:
-                        outer_keyframes.append((frame - 1, drone, copy_color(outer_color)))
-                        outer_keyframes.append((frame, drone, copy_color(self.background_color_picker)))
-                    elif frame == end_frame + 1:
-                        outer_keyframes.append((frame, drone, copy_color(outer_color)))
-                        outer_keyframes.append((frame - 1, drone, copy_color(self.background_color_picker)))
+                if self.background_color and frame == start_frame:
+                    outer_keyframes.append((frame - 1, drone, copy_color(outer_color)))
+                    inner_keyframes.append((frame, drone, copy_color(self.background_color_picker)))
 
-                if not drone['selected'] and drone['prev_selected']:
+                if frame == end_frame + 1:
+                    outer_keyframes.append((frame, drone, copy_color(outer_color)))
+                    if drone['prev_selected']:
+                        inner_keyframes.append((frame - 1, drone, copy_color(inner_color)))
+                    if self.background_color:
+                        inner_keyframes.append((frame - 1, drone, copy_color(self.background_color_picker)))
+                elif not drone['selected'] and drone['prev_selected']:
                     outer_keyframes.append((frame, drone, copy_color(outer_color)))
                     inner_keyframes.append((frame - 1, drone, copy_color(inner_color)))
                 elif drone['selected'] and not drone['prev_selected']:
                     outer_keyframes.append((frame - 1, drone, copy_color(outer_color)))
                     inner_keyframes.append((frame, drone, copy_color(inner_color)))
-                elif drone['selected'] and frame == end_frame + 1:
-                    outer_keyframes.append((frame, drone, copy_color(outer_color)))
-                    inner_keyframes.append((frame - 1, drone, copy_color(inner_color)))
 
         self.insert_keyframes(outer_keyframes)
         self.insert_keyframes(inner_keyframes)
@@ -189,7 +188,7 @@ class SwarmPainterBase:
             mat = drone.data.materials[0]
             mat.diffuse_color = diffuse_color
             drone["custom_color"] = [int(c * 255) for c in list(diffuse_color)[:3]]
-            print(f"Inserting keyframes on frame {frame} mat {mat}")
+            print(f"Inserting keyframes on frame {frame} mat {diffuse_color}")
             mat.keyframe_insert(data_path="diffuse_color", frame=frame)
             drone.keyframe_insert(data_path='["custom_color"]', frame=frame)
     
