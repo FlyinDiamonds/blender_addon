@@ -104,11 +104,11 @@ class SwarmPainterBase:
 
                 if self.background_color:
                     if frame == start_frame:
-                        outer_keyframes.append((frame - 1, drone, copy_color(drone.data.materials[0].diffuse_color)))
+                        outer_keyframes.append((frame - 1, drone, copy_color(outer_color)))
                         outer_keyframes.append((frame, drone, copy_color(self.background_color_picker)))
                     elif frame == end_frame + 1:
+                        outer_keyframes.append((frame, drone, copy_color(outer_color)))
                         outer_keyframes.append((frame - 1, drone, copy_color(self.background_color_picker)))
-                        outer_keyframes.append((frame, drone, copy_color(drone.data.materials[0].diffuse_color)))
 
                 if not drone['selected'] and drone['prev_selected']:
                     outer_keyframes.append((frame, drone, copy_color(outer_color)))
