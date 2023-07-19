@@ -131,13 +131,13 @@ class SwarmPainterBase:
                 keyframes.append((frame, drone, copy_color(inner_color)))
             elif self.background_color:
                 keyframes.append((frame, drone, copy_color(self.background_color_picker)))
+        elif frame == end_frame + 1 and (drone['selected'] or self.background_color):
+            keyframes.append((frame, drone, copy_color(drone['cur_frame_color'])))
         elif not drone['prev_selected'] and drone['selected']:
             keyframes.append((frame, drone, copy_color(inner_color)))
         elif drone['prev_selected'] and not drone['selected']:
             keyframes.append((frame, drone, copy_color(self.background_color_picker
                                                                          if self.background_color else drone['cur_frame_color'])))
-        elif frame == end_frame + 1 and (drone['selected'] or self.background_color):
-            keyframes.append((frame, drone, copy_color(drone['cur_frame_color'])))
 
     def set_colors_on_frames(self, all_drones):
         for drone in all_drones:
