@@ -88,43 +88,64 @@ class SwarmPainterBase:
         scene = bpy.data.scenes.get("Scene")
         all_drones = self.get_all_drones(context)
         start_frame, end_frame = self.get_frames(context)
-        outer_keyframes = []
-        inner_keyframes = []
+        keyframes = []
+        keyframes_to_delete = []
+        inner_color = None
 
-        for frame in range(start_frame, end_frame + 2):
+        for frame in range(start_frame - 1, end_frame + 2):
             scene.frame_set(frame)
-            inner_color = self.get_color(frame)
+            self.set_colors_on_frames(all_drones)
+
+            if frame == start_frame - 1:
+                continue
+
+            prev_inner_color = inner_color
+            inner_color = self.resolve_inner_color(frame)
             self.resolve_selection(context, all_drones)
 
             for drone in all_drones:
-                outer_color = drone.data.materials[0].diffuse_color
-
+                self.resolve_prev_frame(drone, keyframes, start_frame, end_frame, frame, prev_inner_color)
                 if self.background_color or drone['selected']:
-                    self.delete_keyframes(drone, frame)
+                    keyframes_to_delete.append((drone, frame))
+                self.resolve_cur_frame(drone, keyframes, start_frame, end_frame, frame, inner_color)
 
-                if self.background_color and frame == start_frame:
-                    outer_keyframes.append((frame - 1, drone, copy_color(outer_color)))
-                    inner_keyframes.append((frame, drone, copy_color(self.background_color_picker)))
-
-                if frame == end_frame + 1:
-                    outer_keyframes.append((frame, drone, copy_color(outer_color)))
-                    if drone['prev_selected']:
-                        inner_keyframes.append((frame - 1, drone, copy_color(inner_color)))
-                    if self.background_color:
-                        inner_keyframes.append((frame - 1, drone, copy_color(self.background_color_picker)))
-                elif not drone['selected'] and drone['prev_selected']:
-                    outer_keyframes.append((frame, drone, copy_color(outer_color)))
-                    inner_keyframes.append((frame - 1, drone, copy_color(inner_color)))
-                elif drone['selected'] and not drone['prev_selected']:
-                    outer_keyframes.append((frame - 1, drone, copy_color(outer_color)))
-                    inner_keyframes.append((frame, drone, copy_color(inner_color)))
-
-        self.insert_keyframes(outer_keyframes)
-        self.insert_keyframes(inner_keyframes)
+        self.delete_keyframes(keyframes_to_delete)
+        self.insert_keyframes(keyframes)
 
         return {"FINISHED"}
 
-    def get_color(self, frame):
+    def resolve_prev_frame(self, drone, keyframes, start_frame, end_frame, frame, prev_inner_color):
+        if frame == start_frame and (drone['selected'] or self.background_color):
+            keyframes.append((frame - 1, drone,  copy_color(drone['prev_frame_color'])))
+        elif not drone['prev_selected'] and drone['selected']:
+            keyframes.append((frame - 1, drone, copy_color(self.background_color_picker
+                                                                         if self.background_color else drone['prev_frame_color'])))
+        elif drone['prev_selected'] and (not drone['selected'] or frame == end_frame + 1):
+            keyframes.append((frame - 1, drone, copy_color(prev_inner_color)))
+        elif frame == end_frame + 1 and self.background_color:
+            keyframes.append((frame - 1, drone, copy_color(self.background_color_picker)))
+    
+    def resolve_cur_frame(self, drone, keyframes, start_frame, end_frame, frame, inner_color):
+        if frame == start_frame:
+            if drone['selected']:
+                keyframes.append((frame, drone, copy_color(inner_color)))
+            elif self.background_color:
+                keyframes.append((frame, drone, copy_color(self.background_color_picker)))
+        elif not drone['prev_selected'] and drone['selected']:
+            keyframes.append((frame, drone, copy_color(inner_color)))
+        elif drone['prev_selected'] and not drone['selected']:
+            keyframes.append((frame, drone, copy_color(self.background_color_picker
+                                                                         if self.background_color else drone['cur_frame_color'])))
+        elif frame == end_frame + 1 and (drone['selected'] or self.background_color):
+            keyframes.append((frame, drone, copy_color(drone['cur_frame_color'])))
+
+    def set_colors_on_frames(self, all_drones):
+        for drone in all_drones:
+            if drone['cur_frame_color']:
+                drone['prev_frame_color'] = copy_color(drone['cur_frame_color'])
+            drone['cur_frame_color'] = copy_color(drone.data.materials[0].diffuse_color)
+        
+    def resolve_inner_color(self, frame):
         color_method_index = int(self.color_method_dropdown)
         color = None
 
@@ -160,7 +181,6 @@ class SwarmPainterBase:
             selected_drones = all_drones - selected_drones
         
         for drone in all_drones:
-            drone['prev_color'] = None
             drone['prev_selected'] = drone['selected']
             drone['selected'] = drone in selected_drones
 
@@ -169,6 +189,8 @@ class SwarmPainterBase:
         for obj in context.scene.objects:
             if not obj.name.startswith("Drone"):
                 continue
+            obj['prev_frame_color'] = None
+            obj['cur_frame_color'] = None
             obj['prev_selected'] = False
             obj['selected'] = False
             all_drones.add(obj)
@@ -192,11 +214,12 @@ class SwarmPainterBase:
             mat.keyframe_insert(data_path="diffuse_color", frame=frame)
             drone.keyframe_insert(data_path='["custom_color"]', frame=frame)
     
-    def delete_keyframes(self, drone, frame):
-        print(f"Deleting keyframes on frame {frame}")
-        mat = drone.data.materials[0]
-        mat.keyframe_delete(data_path="diffuse_color", frame=frame)
-        drone.keyframe_delete(data_path='["custom_color"]', frame=frame)
+    def delete_keyframes(self, keyframes_to_delete):
+        for drone, frame in keyframes_to_delete:
+            print(f"Deleting keyframes on frame {frame}")
+            mat = drone.data.materials[0]
+            mat.keyframe_delete(data_path="diffuse_color", frame=frame)
+            drone.keyframe_delete(data_path='["custom_color"]', frame=frame)
         
     def update_props_from_context(self, context):
         props = context.scene.fd_swarm_painter_props
