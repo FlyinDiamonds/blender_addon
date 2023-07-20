@@ -114,37 +114,33 @@ class SwarmPainterBase:
 
         return {"FINISHED"}
 
-    def resolve_prev_frame(self, drone, keyframes, start_frame, end_frame, frame, prev_inner_color):
-        if frame == start_frame and (drone['selected'] or self.override_background):
-            keyframes.append((frame - 1, drone,  copy_color(drone['prev_frame_color'])))
-        elif not drone['prev_selected'] and drone['selected']:
-            keyframes.append((frame - 1, drone, copy_color(self.background_color_picker
-                                                                         if self.override_background else drone['prev_frame_color'])))
-        elif drone['prev_selected'] and (not drone['selected'] or frame == end_frame + 1):
-            keyframes.append((frame - 1, drone, copy_color(prev_inner_color)))
-        elif frame == end_frame + 1 and self.override_background:
-            keyframes.append((frame - 1, drone, copy_color(self.background_color_picker)))
+    def get_all_drones(self, context):
+        all_drones = set()
+        for obj in context.scene.objects:
+            if not obj.name.startswith("Drone"):
+                continue
+            obj['prev_frame_color'] = None
+            obj['cur_frame_color'] = None
+            obj['prev_selected'] = False
+            obj['selected'] = False
+            all_drones.add(obj)
+        return all_drones
     
-    def resolve_cur_frame(self, drone, keyframes, start_frame, end_frame, frame, inner_color):
-        if frame == start_frame:
-            if drone['selected']:
-                keyframes.append((frame, drone, copy_color(inner_color)))
-            elif self.override_background:
-                keyframes.append((frame, drone, copy_color(self.background_color_picker)))
-        elif frame == end_frame + 1 and (drone['selected'] or self.override_background):
-            keyframes.append((frame, drone, copy_color(drone['cur_frame_color'])))
-        elif not drone['prev_selected'] and drone['selected']:
-            keyframes.append((frame, drone, copy_color(inner_color)))
-        elif drone['prev_selected'] and not drone['selected']:
-            keyframes.append((frame, drone, copy_color(self.background_color_picker
-                                                                         if self.override_background else drone['cur_frame_color'])))
-
+    def get_frames(self, context):
+        frame_method_index = int(self.frame_method_dropdown)
+        if frame_method_index == 0:
+            start_frame = context.scene.frame_current
+            end_frame = start_frame + self.frame_duration
+        elif frame_method_index == 1:
+            start_frame, end_frame = self.start_frame, self.end_frame
+        return start_frame, end_frame, end_frame - start_frame
+    
     def set_colors_on_frames(self, all_drones):
         for drone in all_drones:
             if drone['cur_frame_color']:
                 drone['prev_frame_color'] = copy_color(drone['cur_frame_color'])
             drone['cur_frame_color'] = copy_color(drone.data.materials[0].diffuse_color)
-        
+    
     def resolve_inner_color(self, frame, duration):
         color_method_index = int(self.color_method_dropdown)
         color = None
@@ -167,7 +163,7 @@ class SwarmPainterBase:
             color = tuple(color)
 
         return color
-
+    
     def resolve_selection(self, context, all_drones):
         select_method_index = int(self.select_method_dropdown)
         selected_drones = set()
@@ -193,26 +189,30 @@ class SwarmPainterBase:
             drone['prev_selected'] = drone['selected']
             drone['selected'] = drone in selected_drones
 
-    def get_all_drones(self, context):
-        all_drones = set()
-        for obj in context.scene.objects:
-            if not obj.name.startswith("Drone"):
-                continue
-            obj['prev_frame_color'] = None
-            obj['cur_frame_color'] = None
-            obj['prev_selected'] = False
-            obj['selected'] = False
-            all_drones.add(obj)
-        return all_drones
-
-    def get_frames(self, context):
-        frame_method_index = int(self.frame_method_dropdown)
-        if frame_method_index == 0:
-            start_frame = context.scene.frame_current
-            end_frame = start_frame + self.frame_duration
-        elif frame_method_index == 1:
-            start_frame, end_frame = self.start_frame, self.end_frame
-        return start_frame, end_frame, end_frame - start_frame
+    def resolve_prev_frame(self, drone, keyframes, start_frame, end_frame, frame, prev_inner_color):
+        if frame == start_frame and (drone['selected'] or self.override_background):
+            keyframes.append((frame - 1, drone,  copy_color(drone['prev_frame_color'])))
+        elif not drone['prev_selected'] and drone['selected']:
+            keyframes.append((frame - 1, drone, copy_color(self.background_color_picker
+                                                                         if self.override_background else drone['prev_frame_color'])))
+        elif drone['prev_selected'] and (not drone['selected'] or frame == end_frame + 1):
+            keyframes.append((frame - 1, drone, copy_color(prev_inner_color)))
+        elif frame == end_frame + 1 and self.override_background:
+            keyframes.append((frame - 1, drone, copy_color(self.background_color_picker)))
+    
+    def resolve_cur_frame(self, drone, keyframes, start_frame, end_frame, frame, inner_color):
+        if frame == start_frame:
+            if drone['selected']:
+                keyframes.append((frame, drone, copy_color(inner_color)))
+            elif self.override_background:
+                keyframes.append((frame, drone, copy_color(self.background_color_picker)))
+        elif frame == end_frame + 1 and (drone['selected'] or self.override_background):
+            keyframes.append((frame, drone, copy_color(drone['cur_frame_color'])))
+        elif not drone['prev_selected'] and drone['selected']:
+            keyframes.append((frame, drone, copy_color(inner_color)))
+        elif drone['prev_selected'] and not drone['selected']:
+            keyframes.append((frame, drone, copy_color(self.background_color_picker
+                                                                         if self.override_background else drone['cur_frame_color'])))
     
     def insert_keyframes(self, keyframes):
         for frame, drone, diffuse_color in keyframes:
