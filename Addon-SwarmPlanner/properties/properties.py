@@ -141,7 +141,22 @@ class FD_SwarmPainterProps(PropertyGroup):
     selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
     invert_selection: BoolProperty(name="Invert selection", default=False)
-    step_change: BoolProperty(name="Step change", default=True)
     start_frame: IntProperty(name="Start frame", default=0, min=0)
     end_frame: IntProperty(name="End frame", default=100, min=1)
     frame_duration: IntProperty(name="Frame duration", default=10, min=0)
+    transition_color_picker: FloatVectorProperty(
+             name = "Transition from",
+             subtype = "COLOR",
+             min = 0.0,
+             max = 1.0,
+             default = (0.0, 0.0, 0.0, 1.0),
+             size = 4
+    )
+    transition_color_picker_snd: FloatVectorProperty(
+             name = "Transition to",
+             subtype = "COLOR",
+             min = 0.0,
+             max = 1.0,
+             default = (0.0, 0.0, 0.0, 1.0),
+             size = 4
+    )

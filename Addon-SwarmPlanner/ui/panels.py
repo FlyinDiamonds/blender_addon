@@ -275,6 +275,11 @@ class FD_PainterPanel(Panel):
         elif color_method_index == 1:
             row = box.row()
             row.prop(props, 'color_picker')
+        elif color_method_index == 2:
+            row = box.row()
+            row.prop(props, 'transition_color_picker')
+            row = box.row()
+            row.prop(props, 'transition_color_picker_snd')
         row = box.row()
         col = row.column()
         col.prop(props, 'override_background')

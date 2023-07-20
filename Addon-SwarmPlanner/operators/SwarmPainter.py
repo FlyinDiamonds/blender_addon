@@ -79,10 +79,25 @@ class SwarmPainterBase:
     selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
     invert_selection: BoolProperty(name="Invert selection", default=False)
-    step_change: BoolProperty(name="Step change", default=True)
     start_frame: IntProperty(name="Start frame", default=0, min=0)
     end_frame: IntProperty(name="End frame", default=100, min=1)
     frame_duration: IntProperty(name="Frame duration", default=10, min=0)
+    transition_color_picker: FloatVectorProperty(
+             name = "Transition from",
+             subtype = "COLOR",
+             min = 0.0,
+             max = 1.0,
+             default = (0.0, 0.0, 0.0, 1.0),
+             size = 4
+    )
+    transition_color_picker_snd: FloatVectorProperty(
+             name = "Transition to",
+             subtype = "COLOR",
+             min = 0.0,
+             max = 1.0,
+             default = (0.0, 0.0, 0.0, 1.0),
+             size = 4
+    )
 
     def execute(self, context):
         scene = bpy.data.scenes.get("Scene")
@@ -150,17 +165,13 @@ class SwarmPainterBase:
         elif color_method_index == 1:
             color = self.color_picker
         elif color_method_index == 2:
-            fst_color = COLOR_PALLETTE[2]
-            snd_color = COLOR_PALLETTE[3]
-
-            color = []
+            color_parts = []
 
             for i in range(4):
-                fst_rgba_part = fst_color[i]
-                snd_rgba_part = snd_color[i]
-
-                color.append(fst_rgba_part + (snd_rgba_part - fst_rgba_part) / duration * frame)
-            color = tuple(color)
+                fst_rgba_part = self.transition_color_picker[i]
+                snd_rgba_part = self.transition_color_picker_snd[i]
+                color_parts.append(fst_rgba_part + (snd_rgba_part - fst_rgba_part) / duration * frame)
+            color = tuple(color_parts)
 
         return color
     
@@ -246,7 +257,6 @@ class SwarmPainterBase:
             props.override_background,
             props.background_color_picker,
         )
-        self.step_change = props.step_change
         self.selected_mesh, self.invert_selection, self.random_percentage = (
             props.selected_mesh,
             props.invert_selection,
@@ -256,6 +266,10 @@ class SwarmPainterBase:
             props.start_frame,
             props.end_frame,
             props.frame_duration,
+        )
+        self.transition_color_picker, self.transition_color_picker_snd = (
+            props.transition_color_picker,
+            props.transition_color_picker_snd
         )
 
 
