@@ -131,7 +131,7 @@ class FD_SwarmPainterProps(PropertyGroup):
              default = (0.0, 0.0, 0.0, 1.0),
              size = 4
              )
-    background_color: BoolProperty(name="Override background", default=True)
+    override_background: BoolProperty(name="Override background", default=True)
     select_method_dropdown: EnumProperty(
         items=fd_select_method_list,
         name="Select method",

@@ -277,10 +277,10 @@ class FD_PainterPanel(Panel):
             row.prop(props, 'color_picker')
         row = box.row()
         col = row.column()
-        col.prop(props, 'background_color')
+        col.prop(props, 'override_background')
         col = row.column()
         col.prop(props, 'background_color_picker')
-        if not props.background_color:
+        if not props.override_background:
             col.enabled = False
         row = box.row()
         
