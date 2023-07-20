@@ -87,7 +87,7 @@ class SwarmPainterBase:
     def execute(self, context):
         scene = bpy.data.scenes.get("Scene")
         all_drones = self.get_all_drones(context)
-        start_frame, end_frame = self.get_frames(context)
+        start_frame, end_frame, duration = self.get_frames(context)
         keyframes = []
         keyframes_to_delete = []
         inner_color = None
@@ -100,7 +100,7 @@ class SwarmPainterBase:
                 continue
 
             prev_inner_color = inner_color
-            inner_color = self.resolve_inner_color(frame)
+            inner_color = self.resolve_inner_color(frame - start_frame, duration)
             self.resolve_selection(context, all_drones)
 
             for drone in all_drones:
@@ -145,7 +145,7 @@ class SwarmPainterBase:
                 drone['prev_frame_color'] = copy_color(drone['cur_frame_color'])
             drone['cur_frame_color'] = copy_color(drone.data.materials[0].diffuse_color)
         
-    def resolve_inner_color(self, frame):
+    def resolve_inner_color(self, frame, duration):
         color_method_index = int(self.color_method_dropdown)
         color = None
 
@@ -154,8 +154,17 @@ class SwarmPainterBase:
         elif color_method_index == 1:
             color = self.color_picker
         elif color_method_index == 2:
-            # TODO find value for color
-            pass
+            fst_color = COLOR_PALLETTE[2]
+            snd_color = COLOR_PALLETTE[3]
+
+            color = []
+
+            for i in range(4):
+                fst_rgba_part = fst_color[i]
+                snd_rgba_part = snd_color[i]
+
+                color.append(fst_rgba_part + (snd_rgba_part - fst_rgba_part) / duration * frame)
+            color = tuple(color)
 
         return color
 
@@ -203,7 +212,7 @@ class SwarmPainterBase:
             end_frame = start_frame + self.frame_duration
         elif frame_method_index == 1:
             start_frame, end_frame = self.start_frame, self.end_frame
-        return start_frame, end_frame
+        return start_frame, end_frame, end_frame - start_frame
     
     def insert_keyframes(self, keyframes):
         for frame, drone, diffuse_color in keyframes:
