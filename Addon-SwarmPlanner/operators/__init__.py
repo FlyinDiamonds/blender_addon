@@ -7,6 +7,7 @@ from .SwarmPainter import SwarmPainter, SwarmPainterButton
 from .SwarmArea import SwarmArea, SwarmAreaButton
 from .SwarmSpeed import SwarmSpeed, SwarmSpeedButton
 from .SwarmDistance import SwarmDistance, SwarmDistanceButton
+from .SwarmPainterOld import SwarmPainterOld, SwarmPainterButtonOld
 
 
 menu_classes = (
@@ -17,17 +18,19 @@ menu_classes = (
     SwarmArea,
     SwarmSpeed,
     SwarmDistance,
+    SwarmPainterOld,
 )
 
 
 menu_functions = [
     lambda self, context: self.layout.operator(SwarmInit.bl_idname),
-    lambda self, context:self.layout.operator(SwarmPlanner.bl_idname),
-    lambda self, context:self.layout.operator(SwarmExporter.bl_idname),
+    lambda self, context: self.layout.operator(SwarmPlanner.bl_idname),
+    lambda self, context: self.layout.operator(SwarmExporter.bl_idname),
     lambda self, context: self.layout.operator(SwarmPainter.bl_idname),
     lambda self, context: self.layout.operator(SwarmArea.bl_idname),
     lambda self, context: self.layout.operator(SwarmSpeed.bl_idname),
     lambda self, context: self.layout.operator(SwarmDistance.bl_idname),
+    lambda self, context: self.layout.operator(SwarmPainterOld.bl_idname),
 ]
 
 button_classes = (
@@ -37,6 +40,7 @@ button_classes = (
     SwarmSpeedButton,
     SwarmPlannerButton,
     SwarmPainterButton,
+    SwarmPainterButtonOld,
 )
 
 
@@ -61,6 +65,9 @@ def register():
 
     bpy.utils.register_class(SwarmDistance)
     bpy.types.VIEW3D_MT_object.append(menu_functions[6])
+
+    bpy.utils.register_class(SwarmPainterOld)
+    bpy.types.VIEW3D_MT_object.append(menu_functions[7])
 
     for current_class in button_classes:
         bpy.utils.register_class(current_class)

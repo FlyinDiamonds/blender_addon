@@ -6,16 +6,17 @@ from . import panels
 
 classes = (
     panels.FD_PlanningPanel,
-    panels.FD_ColorPanel,
+    # panels.FD_ColorPanel,
+    panels.FD_PainterPanel,
     panels.FD_ExportPanel,
     panels.FD_SwarmArea,
     panels.FD_SwarmInit,
     panels.FD_SwarmPlan,
     panels.FD_SwarmDistance,
     panels.FD_SwarmSpeed,
-    panels.FD_ColorMethod,
-    panels.FD_SelectMethod,
-    panels.FD_ColorProps,
+    # panels.FD_ColorMethod,
+    # panels.FD_SelectMethod,
+    # panels.FD_ColorProps,
 )
 
 
