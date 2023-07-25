@@ -106,17 +106,17 @@ class SwarmPainterBase:
         keyframes = []
         keyframes_to_delete = []
         inner_color = None
+        init_frame = scene.frame_current
 
         for frame in range(start_frame - 1, end_frame + 2):
-            scene.frame_set(frame)
-            self.set_colors_on_frames(all_drones)
+            self.set_colors_on_frames(all_drones, frame)
 
             if frame == start_frame - 1:
                 continue
 
             prev_inner_color = inner_color
             inner_color = self.resolve_inner_color(frame - start_frame, duration)
-            self.resolve_selection(context, all_drones)
+            self.resolve_selection(context, all_drones, scene, frame)
 
             for drone in all_drones:
                 self.resolve_prev_frame(drone, keyframes, start_frame, end_frame, frame, prev_inner_color)
@@ -126,6 +126,9 @@ class SwarmPainterBase:
 
         self.delete_keyframes(keyframes_to_delete)
         self.insert_keyframes(keyframes)
+
+        if init_frame != scene.frame_current:
+            scene.frame_set(init_frame)
 
         return {"FINISHED"}
 
@@ -150,11 +153,22 @@ class SwarmPainterBase:
             start_frame, end_frame = self.start_frame, self.end_frame
         return start_frame, end_frame, end_frame - start_frame
     
-    def set_colors_on_frames(self, all_drones):
+    def set_colors_on_frames(self, all_drones, frame):
         for drone in all_drones:
             if drone['cur_frame_color']:
                 drone['prev_frame_color'] = copy_color(drone['cur_frame_color'])
-            drone['cur_frame_color'] = copy_color(drone.data.materials[0].diffuse_color)
+            
+            material = drone.data.materials[0]
+            diffuse_color = COLOR_PALLETTE[1]
+            if material.animation_data:
+                diffuse_color = (
+                    material.animation_data.action.fcurves[0].evaluate(frame),
+                    material.animation_data.action.fcurves[1].evaluate(frame),
+                    material.animation_data.action.fcurves[2].evaluate(frame),
+                    material.animation_data.action.fcurves[3].evaluate(frame),
+                )
+
+            drone['cur_frame_color'] = copy_color(diffuse_color)
     
     def resolve_inner_color(self, frame, duration):
         color_method_index = int(self.color_method_dropdown)
@@ -175,7 +189,7 @@ class SwarmPainterBase:
 
         return color
     
-    def resolve_selection(self, context, all_drones):
+    def resolve_selection(self, context, all_drones, scene, frame):
         select_method_index = int(self.select_method_dropdown)
         selected_drones = set()
         if select_method_index == 0:
@@ -183,6 +197,7 @@ class SwarmPainterBase:
                 drone for drone in all_drones if drone in context.selected_objects
             }
         elif select_method_index == 1:
+            scene.frame_set(frame)
             if self.selected_mesh:
                 selected_drones = {
                     drone
