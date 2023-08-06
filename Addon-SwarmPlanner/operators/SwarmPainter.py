@@ -81,13 +81,14 @@ class SwarmPainterBase:
     invert_selection: BoolProperty(name="Invert selection", default=False)
     start_frame: IntProperty(name="Start frame", default=0, min=0)
     end_frame: IntProperty(name="End frame", default=100, min=1)
-    frame_duration: IntProperty(name="Frame duration", default=10, min=0)
+    frame_duration: IntProperty(name="Frame duration", default=10, min=0, max=1000)
+    frame_step: IntProperty(name="Frame step", default=1, min=1, max=100)
     transition_color_picker: FloatVectorProperty(
              name = "Transition from",
              subtype = "COLOR",
              min = 0.0,
              max = 1.0,
-             default = (0.0, 0.0, 0.0, 1.0),
+             default = (1.0, 1.0, 1.0, 1.0),
              size = 4
     )
     transition_color_picker_snd: FloatVectorProperty(
@@ -95,7 +96,7 @@ class SwarmPainterBase:
              subtype = "COLOR",
              min = 0.0,
              max = 1.0,
-             default = (0.0, 0.0, 0.0, 1.0),
+             default = (1.0, 1.0, 1.0, 1.0),
              size = 4
     )
 
@@ -107,6 +108,7 @@ class SwarmPainterBase:
         keyframes_to_delete = []
         inner_color = None
         init_frame = scene.frame_current
+        start_modulo = start_frame % self.frame_step
 
         for frame in range(start_frame - 1, end_frame + 2):
             self.set_colors_on_frames(all_drones, frame)
@@ -116,12 +118,18 @@ class SwarmPainterBase:
 
             prev_inner_color = inner_color
             inner_color = self.resolve_inner_color(frame - start_frame, duration)
+
+            for drone in all_drones:
+                if self.override_background or drone['selected']:
+                    keyframes_to_delete.append((drone, frame))
+            
+            if frame not in (start_frame, end_frame, end_frame + 1) and frame % self.frame_step != start_modulo:
+                continue
+
             self.resolve_selection(context, all_drones, scene, frame)
 
             for drone in all_drones:
                 self.resolve_prev_frame(drone, keyframes, start_frame, end_frame, frame, prev_inner_color)
-                if self.override_background or drone['selected']:
-                    keyframes_to_delete.append((drone, frame))
                 self.resolve_cur_frame(drone, keyframes, start_frame, end_frame, frame, inner_color)
 
         self.delete_keyframes(keyframes_to_delete)
@@ -245,16 +253,18 @@ class SwarmPainterBase:
             mat = drone.data.materials[0]
             mat.diffuse_color = diffuse_color
             drone["custom_color"] = [int(c * 255) for c in list(diffuse_color)[:3]]
-            print(f"Inserting keyframes on frame {frame} mat {diffuse_color}")
+            # print(f"Inserting keyframes on frame {frame} mat {diffuse_color}")
             mat.keyframe_insert(data_path="diffuse_color", frame=frame)
             drone.keyframe_insert(data_path='["custom_color"]', frame=frame)
     
     def delete_keyframes(self, keyframes_to_delete):
         for drone, frame in keyframes_to_delete:
-            print(f"Deleting keyframes on frame {frame}")
+            # print(f"Deleting keyframes on frame {frame}")
             mat = drone.data.materials[0]
-            mat.keyframe_delete(data_path="diffuse_color", frame=frame)
-            drone.keyframe_delete(data_path='["custom_color"]', frame=frame)
+            if bpy.data.materials[mat.name].animation_data.action is not None:
+                mat.keyframe_delete(data_path="diffuse_color", frame=frame)
+            if bpy.data.objects[drone.name].animation_data.action is not None:
+                drone.keyframe_delete(data_path='["custom_color"]', frame=frame)
         
     def update_props_from_context(self, context):
         props = context.scene.fd_swarm_painter_props
@@ -277,10 +287,11 @@ class SwarmPainterBase:
             props.invert_selection,
             props.random_percentage,
         )
-        self.start_frame, self.end_frame, self.frame_duration = (
+        self.start_frame, self.end_frame, self.frame_duration, self.frame_step = (
             props.start_frame,
             props.end_frame,
             props.frame_duration,
+            props.frame_step
         )
         self.transition_color_picker, self.transition_color_picker_snd = (
             props.transition_color_picker,
