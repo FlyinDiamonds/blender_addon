@@ -143,13 +143,14 @@ class FD_SwarmPainterProps(PropertyGroup):
     invert_selection: BoolProperty(name="Invert selection", default=False)
     start_frame: IntProperty(name="Start frame", default=0, min=0)
     end_frame: IntProperty(name="End frame", default=100, min=1)
-    frame_duration: IntProperty(name="Frame duration", default=10, min=0)
+    frame_duration: IntProperty(name="Frame duration", default=10, min=0, max=1000)
+    frame_step: IntProperty(name="Frame step", default=1, min=1, max=100)
     transition_color_picker: FloatVectorProperty(
              name = "Transition from",
              subtype = "COLOR",
              min = 0.0,
              max = 1.0,
-             default = (0.0, 0.0, 0.0, 1.0),
+             default = (1.0, 1.0, 1.0, 1.0),
              size = 4
     )
     transition_color_picker_snd: FloatVectorProperty(
@@ -157,6 +158,6 @@ class FD_SwarmPainterProps(PropertyGroup):
              subtype = "COLOR",
              min = 0.0,
              max = 1.0,
-             default = (0.0, 0.0, 0.0, 1.0),
+             default = (1.0, 1.0, 1.0, 1.0),
              size = 4
     )

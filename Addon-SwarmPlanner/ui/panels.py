@@ -260,6 +260,8 @@ class FD_PainterPanel(Panel):
             row = box.row()
             row.prop(props, 'start_frame', expand=True)
             row.prop(props, 'end_frame', expand=True)
+        row = box.row()
+        row.prop(props, 'frame_step', expand=True)
 
         # COLOR
         color_method_index = int(props.color_method_dropdown)
