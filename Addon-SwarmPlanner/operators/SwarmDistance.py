@@ -7,7 +7,7 @@ from .drawFunctions import enable_draw_distance
 
 
 class SwarmDistanceBase:
-    """Set color for selected drones"""
+    """Check minimal distance between drones"""
     min_distance: bpy.props.FloatProperty(name="Mininal separation", default=1.0, min=0.1, max=10.0)
 
     def execute(self, context):
@@ -86,7 +86,7 @@ class SwarmDistanceBase:
 
 
 class SwarmDistance(bpy.types.Operator, SwarmDistanceBase):
-    """Set color for selected drones"""
+    """Check minimal distance between drones"""
     bl_idname = "object.swarm_distance"
     bl_label = "Swarm - Check distance"
     bl_options = {'REGISTER', 'UNDO'}
@@ -98,7 +98,7 @@ class SwarmDistance(bpy.types.Operator, SwarmDistanceBase):
 
 
 class SwarmDistanceButton(bpy.types.Operator, SwarmDistanceBase):
-    """Set color for selected drones"""
+    """Check minimal distance between drones"""
     bl_idname = "object.swarm_distance_button"
     bl_label = "Swarm - Check distance"
     bl_options = {'REGISTER', 'UNDO'}

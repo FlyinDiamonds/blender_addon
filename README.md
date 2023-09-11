@@ -1,5 +1,32 @@
 # FlyinDiamonds
 
+## Planning
+
+### Swarm area
+- define and check area for swarm
+
+![Swarm area](gifs/swarm_area.gif)
+
+### Swarm initialize
+- initialize drones
+
+![Swarm initialize](gifs/swarm_init.gif)
+
+### Swarm plan transition
+- maps drones to vertices of selected object and plan transition to their locations
+
+![Swarm plan transition](gifs/swarm_transition.gif)
+
+### Swarm distance
+- check minimal distance between drones
+
+![Swarm distance](gifs/swarm_distance.gif)
+
+### Swarm speed
+- check maximal horizontal and vertical drones speed
+
+![Swarm speed](gifs/swarm_speed.gif)
+
 ## Frames
 
 ### Frame duration
