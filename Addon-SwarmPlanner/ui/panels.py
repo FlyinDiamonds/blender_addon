@@ -3,10 +3,10 @@ import bpy
 from bpy.types import Panel
 
 
-class FD_PlanningPanel(Panel):
+class FD_PT_PlanningPanel(Panel):
     """Creates side panel."""
     bl_label = "Swarm planning"
-    bl_idname = "FD_PlanningPanel"
+    bl_idname = "FD_PT_PlanningPanel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
@@ -22,14 +22,14 @@ class FD_PlanningPanel(Panel):
         pass
 
 
-class FD_SwarmArea(Panel):
+class FD_PT_SwarmArea(Panel):
     """Creates sub-panel."""
     bl_label = "Swarm area"
-    bl_idname = "FD_SwarmArea"
+    bl_idname = "FD_PT_SwarmArea"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
-    bl_parent_id = "FD_PlanningPanel"
+    bl_parent_id = "FD_PT_PlanningPanel"
 
     def draw(self, context):
         layout = self.layout
@@ -43,14 +43,14 @@ class FD_SwarmArea(Panel):
         row.operator("view3d.swarm_area_button")
 
 
-class FD_SwarmInit(Panel):
+class FD_PT_SwarmInit(Panel):
     """Creates sub-panel."""
     bl_label = "Swarm init"
-    bl_idname = "FD_SwarmInit"
+    bl_idname = "FD_PT_SwarmInit"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
-    bl_parent_id = "FD_PlanningPanel"
+    bl_parent_id = "FD_PT_PlanningPanel"
 
     def draw(self, context):
         layout = self.layout
@@ -67,14 +67,14 @@ class FD_SwarmInit(Panel):
 
 
 
-class FD_SwarmDistance(Panel):
+class FD_PT_SwarmDistance(Panel):
     """Creates sub-panel."""
     bl_label = "Swarm distance"
-    bl_idname = "FD_SwarmDistance"
+    bl_idname = "FD_PT_SwarmDistance"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
-    bl_parent_id = "FD_PlanningPanel"
+    bl_parent_id = "FD_PT_PlanningPanel"
 
     def draw(self, context):
         layout = self.layout
@@ -86,14 +86,14 @@ class FD_SwarmDistance(Panel):
         row.operator("object.swarm_distance_button")
 
 
-class FD_SwarmSpeed(Panel):
+class FD_PT_SwarmSpeed(Panel):
     """Creates sub-panel."""
     bl_label = "Swarm speed"
-    bl_idname = "FD_SwarmSpeed"
+    bl_idname = "FD_PT_SwarmSpeed"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
-    bl_parent_id = "FD_PlanningPanel"
+    bl_parent_id = "FD_PT_PlanningPanel"
 
     def draw(self, context):
         layout = self.layout
@@ -107,14 +107,14 @@ class FD_SwarmSpeed(Panel):
         row.operator("object.swarm_speed_button")
 
 
-class FD_SwarmPlan(Panel):
+class FD_PT_SwarmPlan(Panel):
     """Creates sub-panel."""
     bl_label = "Swarm plan"
-    bl_idname = "FD_SwarmPlan"
+    bl_idname = "FD_PT_SwarmPlan"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
-    bl_parent_id = "FD_PlanningPanel"
+    bl_parent_id = "FD_PT_PlanningPanel"
 
     def draw(self, context):
         layout = self.layout
@@ -131,10 +131,10 @@ class FD_SwarmPlan(Panel):
 
 
 
-class FD_ColorPanel(Panel):
+class FD_PT_ColorPanel(Panel):
     """Creates side panel."""
     bl_label = "Swarm color"
-    bl_idname = "FD_ColorPanel"
+    bl_idname = "FD_PT_ColorPanel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
@@ -150,14 +150,14 @@ class FD_ColorPanel(Panel):
         pass
 
 
-class FD_ColorMethod(Panel):
+class FD_PT_ColorMethod(Panel):
     """Creates side panel."""
     bl_label = "Swarm color method"
-    bl_idname = "FD_ColorMethod"
+    bl_idname = "FD_PT_ColorMethod"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
-    bl_parent_id = "FD_ColorPanel"
+    bl_parent_id = "FD_PT_ColorPanel"
 
     def draw(self, context):
         layout = self.layout
@@ -176,14 +176,14 @@ class FD_ColorMethod(Panel):
             row.prop(props, 'color_picker')
 
 
-class FD_SelectMethod(Panel):
+class FD_PT_SelectMethod(Panel):
     """Creates side panel."""
     bl_label = "Swarm select method"
-    bl_idname = "FD_SelectMethod"
+    bl_idname = "FD_PT_SelectMethod"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
-    bl_parent_id = "FD_ColorPanel"
+    bl_parent_id = "FD_PT_ColorPanel"
 
     def draw(self, context):
         layout = self.layout
@@ -208,14 +208,14 @@ class FD_SelectMethod(Panel):
         row.prop(props, 'invert_selection')
 
 
-class FD_ColorProps(Panel):
+class FD_PT_ColorProps(Panel):
     """Creates side panel."""
     bl_label = "Swarm apply color"
-    bl_idname = "FD_ColorProps"
+    bl_idname = "FD_PT_ColorProps"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
-    bl_parent_id = "FD_ColorPanel"
+    bl_parent_id = "FD_PT_ColorPanel"
 
     def draw(self, context):
         layout = self.layout
@@ -226,10 +226,10 @@ class FD_ColorProps(Panel):
         row.operator("object.swarm_paint_button")
 
 
-class FD_PainterPanel(Panel):
+class FD_PT_PainterPanel(Panel):
     """Creates side panel."""
     bl_label = "Swarm painter"
-    bl_idname = "FD_PainterPanel"
+    bl_idname = "FD_PT_PainterPanel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"
@@ -316,10 +316,10 @@ class FD_PainterPanel(Panel):
         row.operator("object.swarm_painter_button")
 
 
-class FD_ExportPanel(Panel):
+class FD_PT_ExportPanel(Panel):
     """Creates side panel."""
     bl_label = "Swarm export"
-    bl_idname = "FD_ExportPanel"
+    bl_idname = "FD_PT_ExportPanel"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
     bl_category = "FlyinDiamonds"

@@ -76,7 +76,7 @@ class SwarmPainterBase:
         default=0,
         description="Pick method for drone selection",
     )
-    selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
+    selected_mesh: None
     random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
     invert_selection: BoolProperty(name="Invert selection", default=False)
     start_frame: IntProperty(name="Start frame", default=0, min=0)
