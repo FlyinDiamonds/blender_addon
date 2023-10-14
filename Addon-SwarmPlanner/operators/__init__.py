@@ -1,6 +1,6 @@
 import bpy
 
-from .SwarmInit import SwarmInit, SwarmInitButton
+from .SwarmInit import SwarmInit
 from .SwarmPlanner import SwarmPlanner, SwarmPlannerButton
 from .SwarmExporter import SwarmExporter
 from .SwarmPainter import SwarmPainter, SwarmPainterButton
@@ -32,7 +32,6 @@ menu_functions = [
 
 button_classes = (
     SwarmAreaButton,
-    SwarmInitButton,
     SwarmDistanceButton,
     SwarmSpeedButton,
     SwarmPlannerButton,

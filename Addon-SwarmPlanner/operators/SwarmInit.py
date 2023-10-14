@@ -2,11 +2,27 @@ import bpy
 from mathutils import Color
 
 
-class SwarmInitBase:
+class SwarmInit(bpy.types.Operator):
     """Initialize drone swarm"""
+    bl_idname = "object.swarm_init"
+    bl_label = "Swarm - Initialize"
+    bl_options = {'REGISTER', 'UNDO'}
+
     cnt_x: bpy.props.IntProperty(name="X Count", default=2, min=1, max=100)
     cnt_y: bpy.props.IntProperty(name="Y Count", default=2, min=1, max=100)
     spacing: bpy.props.FloatProperty(name="Spacing", default=2.0, min=1.0, max=5.0)
+    is_button: bpy.props.BoolProperty(default=False)
+
+    def invoke(self, context, event):
+        if self.is_button:
+            self.update_props_from_context(context)
+            self.is_button = False
+            return self.execute(context)
+        else:
+            self.update_props_from_context(context)
+            wm = context.window_manager
+            return wm.invoke_props_dialog(self)
+
 
     def execute(self, context):
         for y in range(self.cnt_y):
@@ -30,26 +46,3 @@ class SwarmInitBase:
     def update_props_from_context(self, context):
         props = context.scene.fd_swarm_init_props
         self.cnt_x, self.cnt_y, self.spacing = props.cnt_x, props.cnt_y, props.spacing
-        
-
-class SwarmInit(bpy.types.Operator, SwarmInitBase):
-    """Initialize drone swarm"""
-    bl_idname = "object.swarm_init"
-    bl_label = "Swarm - Initialize"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self)
-
-
-class SwarmInitButton(bpy.types.Operator, SwarmInitBase):
-    """Initialize drone swarm"""
-    bl_idname = "object.swarm_init_button"
-    bl_label = "Swarm - Initialize"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        return self.execute(context)
