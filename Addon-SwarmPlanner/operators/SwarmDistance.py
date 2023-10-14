@@ -6,9 +6,23 @@ from mathutils import Vector
 from .drawFunctions import enable_draw_distance
 
 
-class SwarmDistanceBase:
+class SwarmDistance(bpy.types.Operator):
     """Check minimal distance between drones"""
+    bl_idname = "object.swarm_distance"
+    bl_label = "Swarm - Check distance"
+    bl_options = {'REGISTER', 'UNDO'}
     min_distance: bpy.props.FloatProperty(name="Mininal separation", default=1.0, min=0.1, max=10.0)
+    is_button: bpy.props.BoolProperty(default=False)
+
+    def invoke(self, context, event):
+        if self.is_button:
+            self.update_props_from_context(context)
+            self.is_button = False
+            return self.execute(context)
+        else:
+            self.update_props_from_context(context)
+            wm = context.window_manager
+            return wm.invoke_props_dialog(self)
 
     def execute(self, context):
         scene = context.scene
@@ -83,26 +97,3 @@ class SwarmDistanceBase:
     def update_props_from_context(self, context):
         props = context.scene.fd_swarm_distance_props
         self.min_distance = props.min_distance
-
-
-class SwarmDistance(bpy.types.Operator, SwarmDistanceBase):
-    """Check minimal distance between drones"""
-    bl_idname = "object.swarm_distance"
-    bl_label = "Swarm - Check distance"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self)
-
-
-class SwarmDistanceButton(bpy.types.Operator, SwarmDistanceBase):
-    """Check minimal distance between drones"""
-    bl_idname = "object.swarm_distance_button"
-    bl_label = "Swarm - Check distance"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        return self.execute(context)

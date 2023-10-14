@@ -3,10 +3,25 @@ import numpy as np
 from .drawFunctions import enable_draw_speed
 
 
-class SwarmSpeedBase:
+class SwarmSpeed(bpy.types.Operator):
     """Set color for selected drones"""
+    bl_idname = "object.swarm_speed"
+    bl_label = "Swarm - Check speed"
+    bl_options = {'REGISTER', 'UNDO'}
     max_speed_vertical: bpy.props.FloatProperty(name="Vertical max drone speed", default=5.0, min=1.0, max=10.0)
     max_speed_horizontal: bpy.props.FloatProperty(name="Horizontal max drone speed", default=5.0, min=1.0, max=10.0)
+    is_button: bpy.props.BoolProperty(default=False)
+
+    def invoke(self, context, event):
+        if self.is_button:
+            self.update_props_from_context(context)
+            self.is_button = False
+            return self.execute(context)
+        else:
+            self.update_props_from_context(context)
+            wm = context.window_manager
+            return wm.invoke_props_dialog(self)
+
 
     def execute(self, context):
         scene = context.scene
@@ -63,27 +78,3 @@ class SwarmSpeedBase:
         props = context.scene.fd_swarm_speed_props
         self.max_speed_vertical = props.max_speed_vertical
         self.max_speed_horizontal = props.max_speed_horizontal
-
-
-
-class SwarmSpeed(bpy.types.Operator, SwarmSpeedBase):
-    """Set color for selected drones"""
-    bl_idname = "object.swarm_speed"
-    bl_label = "Swarm - Check speed"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self)
-
-
-class SwarmSpeedButton(bpy.types.Operator, SwarmSpeedBase):
-    """Set color for selected drones"""
-    bl_idname = "object.swarm_speed_button"
-    bl_label = "Swarm - Check speed"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        return self.execute(context)

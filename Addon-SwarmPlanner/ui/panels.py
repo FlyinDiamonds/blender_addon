@@ -82,7 +82,7 @@ class FD_PT_SwarmDistance(Panel):
         row = layout.row()
         row.prop(props, 'min_distance')
         row = layout.row()
-        row.operator("object.swarm_distance_button")
+        row.operator("object.swarm_distance").is_button = True
 
 
 class FD_PT_SwarmSpeed(Panel):
@@ -103,7 +103,7 @@ class FD_PT_SwarmSpeed(Panel):
         row = layout.row()
         row.prop(props, 'max_speed_horizontal')
         row = layout.row()
-        row.operator("object.swarm_speed_button")
+        row.operator("object.swarm_speed").is_button = True
 
 
 class FD_PT_SwarmPlan(Panel):
