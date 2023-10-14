@@ -40,7 +40,7 @@ class FD_PT_SwarmArea(Panel):
         row = layout.row()
         row.prop(props, 'point1')
         row = layout.row()
-        row.operator("view3d.swarm_area_button")
+        row.operator("view3d.swarm_area").is_button = True
 
 
 class FD_PT_SwarmInit(Panel):
@@ -62,9 +62,7 @@ class FD_PT_SwarmInit(Panel):
         row = layout.row()
         row.prop(props, 'spacing')
         row = layout.row()
-        si = row.operator("object.swarm_init")
-        si.is_button = True
-
+        si = row.operator("object.swarm_init").is_button = True
 
 
 
