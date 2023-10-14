@@ -126,7 +126,7 @@ class FD_PT_SwarmPlan(Panel):
         row = layout.row()
         row.prop(props, 'use_faces')
         row = layout.row()
-        row.operator("object.swarm_plan_button")
+        row.operator("object.swarm_plan").is_button = True
 
 
 
@@ -312,7 +312,7 @@ class FD_PT_PainterPanel(Panel):
         
         # FUNCTIONS
         row = layout.row()
-        row.operator("object.swarm_painter_button")
+        row.operator("object.swarm_painter").is_button = True
 
 
 class FD_PT_ExportPanel(Panel):

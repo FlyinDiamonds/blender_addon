@@ -3,12 +3,25 @@ import bpy
 from ..planning.planner import plan, get_max_time
 
 
-class SwarmPlannerBase:
+class SwarmPlanner(bpy.types.Operator):
     """Plan drone swarm transition to selected formation"""
-
+    bl_idname = "object.swarm_plan"
+    bl_label = "Swarm - Plan transition"
+    bl_options = {'REGISTER', 'UNDO'}
     min_distance: bpy.props.FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
     speed: bpy.props.FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
     use_faces: bpy.props.BoolProperty(name="Use faces", default=False)
+    is_button: bpy.props.BoolProperty(default=False)
+
+    def invoke(self, context, event):
+        if self.is_button:
+            self.update_props_from_context(context)
+            self.is_button = False
+            return self.execute(context)
+        else:
+            self.update_props_from_context(context)
+            wm = context.window_manager
+            return wm.invoke_props_dialog(self)
 
     def execute(self, context):
         scene = context.scene
@@ -70,25 +83,3 @@ class SwarmPlannerBase:
     def update_props_from_context(self, context):
         props = context.scene.fd_swarm_planner_props
         self.min_distance, self.speed, self.use_faces = props.min_distance, props.speed, props.use_faces
-
-
-class SwarmPlanner(bpy.types.Operator, SwarmPlannerBase):
-    """Plan drone swarm transition to selected formation"""
-    bl_idname = "object.swarm_plan"
-    bl_label = "Swarm - Plan transition"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self)
-
-class SwarmPlannerButton(bpy.types.Operator, SwarmPlannerBase):
-    """Plan drone swarm transition to selected formation"""
-    bl_idname = "object.swarm_plan_button"
-    bl_label = "Swarm - Plan transition"
-    bl_options = {'REGISTER', 'UNDO'}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        return self.execute(context)

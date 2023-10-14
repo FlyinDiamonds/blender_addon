@@ -5,8 +5,6 @@ from bpy.props import (
     FloatVectorProperty,
     EnumProperty,
     IntProperty,
-    FloatProperty,
-    PointerProperty,
 )
 
 from ..properties.properties import (
@@ -14,7 +12,6 @@ from ..properties.properties import (
     fd_color_method_list,
     fd_color_pallette_list,
     fd_select_method_list,
-    fd_select_mesh_poll,
 )
 from ..utils.drone_in_mesh import is_drone_inside_mesh
 
@@ -34,7 +31,12 @@ def copy_color(color):
     return (color[0], color[1], color[2], color[3])
 
 
-class SwarmPainterBase:
+class SwarmPainter(bpy.types.Operator):
+    """Set color for selected drones"""
+    bl_idname = "object.swarm_painter"
+    bl_label = "Swarm - Set color"
+    bl_options = {"REGISTER", "UNDO"}
+
     frame_method_dropdown: EnumProperty(
         items=fd_frame_method_list,
         name="Frame method",
@@ -105,6 +107,17 @@ class SwarmPainterBase:
     prev_inner_color = None
     keyframes_to_delete = []
     keyframes_to_insert = []
+    is_button: bpy.props.BoolProperty(default=False)
+
+    def invoke(self, context, event):
+        if self.is_button:
+            self.update_props_from_context(context)
+            self.is_button = False
+            return self.execute(context)
+        else:
+            self.update_props_from_context(context)
+            wm = context.window_manager
+            return wm.invoke_props_dialog(self)
 
     def execute(self, context):
         scene = bpy.data.scenes.get("Scene")
@@ -313,27 +326,3 @@ class SwarmPainterBase:
             props.transition_color_picker,
             props.transition_color_picker_snd
         )
-
-
-class SwarmPainter(bpy.types.Operator, SwarmPainterBase):
-    """Set color for selected drones"""
-    bl_idname = "object.swarm_painter"
-    bl_label = "Swarm - Set color"
-    bl_options = {"REGISTER", "UNDO"}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        wm = context.window_manager
-        return wm.invoke_props_dialog(self)
-
-
-class SwarmPainterButton(bpy.types.Operator, SwarmPainterBase):
-    """Set color for selected drones"""
-
-    bl_idname = "object.swarm_painter_button"
-    bl_label = "Swarm - Set color"
-    bl_options = {"REGISTER", "UNDO"}
-
-    def invoke(self, context, event):
-        self.update_props_from_context(context)
-        return self.execute(context)
