@@ -1,6 +1,7 @@
 import bpy
 
 from bpy.types import Panel
+from ..operators.SwarmPainter import draw_painter
 
 
 class FD_PT_PlanningPanel(Panel):
@@ -160,7 +161,7 @@ class FD_PT_ColorMethod(Panel):
 
     def draw(self, context):
         layout = self.layout
-        props = context.scene.fd_swarm_color_props
+        props = context.scene.fd_swarm_painter_props
 
         color_method_index = int(props.color_method_dropdown)
 
@@ -186,7 +187,7 @@ class FD_PT_SelectMethod(Panel):
 
     def draw(self, context):
         layout = self.layout
-        props = context.scene.fd_swarm_color_props
+        props = context.scene.fd_swarm_painter_props
 
         select_method_index = int(props.select_method_dropdown)
 
@@ -218,7 +219,7 @@ class FD_PT_ColorProps(Panel):
 
     def draw(self, context):
         layout = self.layout
-        props = context.scene.fd_swarm_color_props
+        props = context.scene.fd_swarm_painter_props
 
         row = layout.row()
         row.prop(props, 'step_change')
@@ -242,73 +243,7 @@ class FD_PT_PainterPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
-        props = context.scene.fd_swarm_painter_props
-
-        # FRAMES
-        frame_method_index = int(props.frame_method_dropdown)
-
-        box = layout.box()
-        row = box.row()
-        row.label(text="Frames settings")
-        row = box.row()
-        row.prop(props, 'frame_method_dropdown', expand=True)
-        if frame_method_index == 0:
-            row = box.row()
-            row.prop(props, 'frame_duration', expand=True)
-        elif frame_method_index == 1:
-            row = box.row()
-            row.prop(props, 'start_frame', expand=True)
-            row.prop(props, 'end_frame', expand=True)
-        row = box.row()
-        row.prop(props, 'frame_step', expand=True)
-
-        # COLOR
-        color_method_index = int(props.color_method_dropdown)
-
-        box = layout.box()
-        row = box.row()
-        row.label(text="Color settings")
-        row = box.row()
-        row.prop(props, 'color_method_dropdown', expand=True)
-        if color_method_index == 0:
-            row = box.row()
-            row.prop(props, 'color_pallette', expand=True)
-        elif color_method_index == 1:
-            row = box.row()
-            row.prop(props, 'color_picker')
-        elif color_method_index == 2:
-            row = box.row()
-            row.prop(props, 'transition_color_picker')
-            row = box.row()
-            row.prop(props, 'transition_color_picker_snd')
-        row = box.row()
-        col = row.column()
-        col.prop(props, 'override_background')
-        col = row.column()
-        col.prop(props, 'background_color_picker')
-        if not props.override_background:
-            col.enabled = False
-        row = box.row()
-        
-        # SELECT
-        select_method_index = int(props.select_method_dropdown)
-
-        box = layout.box()
-        row = box.row()
-        row.label(text="Select settings")
-        row = box.row()
-        row.prop(props, 'select_method_dropdown', expand=True)
-        if select_method_index == 0:
-            # selected in scene
-            pass
-        elif select_method_index == 1:
-            row = box.row()
-            row.prop_search(props, "selected_mesh", context.scene, "objects")
-        elif select_method_index == 2:
-            row = box.row()
-            row.prop(props, 'random_percentage')
-        row = box.row()
-        row.prop(props, 'invert_selection')
+        draw_painter(context, layout)
         
         # FUNCTIONS
         row = layout.row()

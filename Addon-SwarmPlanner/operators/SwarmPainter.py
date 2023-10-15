@@ -30,11 +30,79 @@ def copy_color(color):
     """Use instead of deepcopy, which fails on diffuse_color"""
     return (color[0], color[1], color[2], color[3])
 
+def draw_painter(context, layout):
+    props = context.scene.fd_swarm_painter_props
+    # FRAMES
+    frame_method_index = int(props.frame_method_dropdown)
+
+    box = layout.box()
+    row = box.row()
+    row.label(text="Frames settings")
+    row = box.row()
+    row.prop(props, 'frame_method_dropdown', expand=True)
+    if frame_method_index == 0:
+        row = box.row()
+        row.prop(props, 'frame_duration', expand=True)
+    elif frame_method_index == 1:
+        row = box.row()
+        row.prop(props, 'start_frame', expand=True)
+        row.prop(props, 'end_frame', expand=True)
+    row = box.row()
+    row.prop(props, 'frame_step', expand=True)
+
+    # COLOR
+    color_method_index = int(props.color_method_dropdown)
+
+    box = layout.box()
+    row = box.row()
+    row.label(text="Color settings")
+    row = box.row()
+    row.prop(props, 'color_method_dropdown', expand=True)
+    if color_method_index == 0:
+        row = box.row()
+        row.prop(props, 'color_pallette', expand=True)
+    elif color_method_index == 1:
+        row = box.row()
+        row.prop(props, 'color_picker')
+    elif color_method_index == 2:
+        row = box.row()
+        row.prop(props, 'transition_color_picker')
+        row = box.row()
+        row.prop(props, 'transition_color_picker_snd')
+    row = box.row()
+    col = row.column()
+    col.prop(props, 'override_background')
+    col = row.column()
+    col.prop(props, 'background_color_picker')
+    if not props.override_background:
+        col.enabled = False
+    row = box.row()
+    
+    # SELECT
+    select_method_index = int(props.select_method_dropdown)
+
+    box = layout.box()
+    row = box.row()
+    row.label(text="Select settings")
+    row = box.row()
+    row.prop(props, 'select_method_dropdown', expand=True)
+    if select_method_index == 0:
+        # selected in scene
+        pass
+    elif select_method_index == 1:
+        row = box.row()
+        row.prop_search(props, "selected_mesh", context.scene, "objects")
+    elif select_method_index == 2:
+        row = box.row()
+        row.prop(props, 'random_percentage')
+    row = box.row()
+    row.prop(props, 'invert_selection')
+
 
 class SwarmPainter(bpy.types.Operator):
     """Set color for selected drones"""
     bl_idname = "object.swarm_painter"
-    bl_label = "Swarm - Set color"
+    bl_label = "Swarm Painter"
     bl_options = {"REGISTER", "UNDO"}
 
     frame_method_dropdown: EnumProperty(
@@ -78,7 +146,7 @@ class SwarmPainter(bpy.types.Operator):
         default=0,
         description="Pick method for drone selection",
     )
-    selected_mesh: None
+    # selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
     invert_selection: BoolProperty(name="Invert selection", default=False)
     start_frame: IntProperty(name="Start frame", default=0, min=0)
@@ -118,6 +186,11 @@ class SwarmPainter(bpy.types.Operator):
             self.update_props_from_context(context)
             wm = context.window_manager
             return wm.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        draw_painter(context, layout)
+        
 
     def execute(self, context):
         scene = bpy.data.scenes.get("Scene")
