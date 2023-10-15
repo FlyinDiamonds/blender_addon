@@ -30,14 +30,10 @@ class FD_SwarmSpeedProps(PropertyGroup):
     max_speed_horizontal: FloatProperty(name="Horizontal max drone speed", default=5.0, min=1.0, max=10.0)
 
 
-def fd_color_method_list_old(self, context):
-    return (('0', 'Pallete', 'Color pallete', 'COLOR', 0),
-            ('1', 'Picker', 'Color picker', 'EYEDROPPER', 1))
-
 def fd_color_method_list(self, context):
     return (('0', 'Pallete', 'Color pallete', 'COLOR', 0),
             ('1', 'Picker', 'Color picker', 'EYEDROPPER', 1),
-            ('2', 'Transition', 'Pick transition', 'EYEDROPPER', 2))
+            ('2', 'Transition', 'Pick transition', 'COLORSET_07_VEC', 2))
 
 
 def fd_frame_method_list(self, context):
@@ -61,39 +57,6 @@ def fd_select_method_list(self, context):
 
 def fd_select_mesh_poll(self, object):
     return object.type == 'MESH' and not object.name.startswith("Drone")
-
-
-class FD_SwarmColorProps(PropertyGroup):
-    color_method_dropdown: EnumProperty(
-        items=fd_color_method_list_old,
-        name="Color method",
-        default=0,
-        description="Pick method for drone painting",
-    )
-    color_pallette: EnumProperty(
-        items=fd_color_pallette_list,
-        name="Color pallette",
-        default=0,
-        description="Pick color from color pallette",
-    )
-    color_picker: FloatVectorProperty(
-             name = "Color Picker",
-             subtype = "COLOR",
-             min = 0.0,
-             max = 1.0,
-             default = (1.0, 1.0, 1.0, 1.0),
-             size = 4
-             )
-    select_method_dropdown: EnumProperty(
-        items=fd_select_method_list,
-        name="Select method",
-        default=0,
-        description="Pick method for drone selection",
-    )
-    selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
-    random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
-    invert_selection: BoolProperty(name="Invert selection", default=False)
-    step_change: BoolProperty(name="Step change", default=True)
 
 
 class FD_SwarmPainterProps(PropertyGroup):
