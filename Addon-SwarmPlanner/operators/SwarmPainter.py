@@ -1,18 +1,5 @@
 import bpy
-from mathutils import Color
-from bpy.props import (
-    BoolProperty,
-    FloatVectorProperty,
-    EnumProperty,
-    IntProperty,
-)
 
-from ..properties.properties import (
-    fd_frame_method_list,
-    fd_color_method_list,
-    fd_color_pallette_list,
-    fd_select_method_list,
-)
 from ..utils.drone_in_mesh import is_drone_inside_mesh
 
 import random
@@ -105,13 +92,15 @@ class SwarmPainter(bpy.types.Operator):
     bl_label = "Swarm Painter"
     bl_options = {"REGISTER", "UNDO"}
 
-    props = None
-    all_drones = set()
-    inner_color = None
-    prev_inner_color = None
-    keyframes_to_delete = []
-    keyframes_to_insert = []
     is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
+
+    def __init__(self):
+        self.props = None
+        self.all_drones = set()
+        self.inner_color = None
+        self.prev_inner_color = None
+        self.keyframes_to_delete = []
+        self.keyframes_to_insert = []
 
     def invoke(self, context, event):
         if self.is_button:
@@ -128,9 +117,8 @@ class SwarmPainter(bpy.types.Operator):
 
     def execute(self, context):
         scene = bpy.data.scenes.get("Scene")
-        self.props = context.scene.fd_swarm_painter_props
         init_frame = scene.frame_current
-        self.reset_class_attributes()
+        self.props = context.scene.fd_swarm_painter_props
         self.resolve_all_drones(context)
         start_frame, end_frame, duration = self.get_frames(context)
         start_modulo = start_frame % self.props.frame_step
@@ -155,13 +143,6 @@ class SwarmPainter(bpy.types.Operator):
         self.set_init_frame(scene, init_frame)
 
         return {"FINISHED"}
-
-    def reset_class_attributes(self):
-        self.all_drones = set()
-        self.inner_color = None
-        self.prev_inner_color = None
-        self.keyframes_to_delete = []
-        self.keyframes_to_insert = []
 
     def resolve_all_drones(self, context):
         for obj in context.scene.objects:
