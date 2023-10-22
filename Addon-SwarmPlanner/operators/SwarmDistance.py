@@ -12,7 +12,7 @@ class SwarmDistance(bpy.types.Operator):
     bl_label = "Swarm - Check distance"
     bl_options = {'REGISTER', 'UNDO'}
     min_distance: bpy.props.FloatProperty(name="Mininal separation", default=1.0, min=0.1, max=10.0)
-    is_button: bpy.props.BoolProperty(default=False)
+    is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
 
     def invoke(self, context, event):
         if self.is_button:

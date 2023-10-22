@@ -11,7 +11,7 @@ class SwarmInit(bpy.types.Operator):
     cnt_x: bpy.props.IntProperty(name="X Count", default=2, min=1, max=100)
     cnt_y: bpy.props.IntProperty(name="Y Count", default=2, min=1, max=100)
     spacing: bpy.props.FloatProperty(name="Spacing", default=2.0, min=1.0, max=5.0)
-    is_button: bpy.props.BoolProperty(default=False)
+    is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
 
     def invoke(self, context, event):
         if self.is_button:

@@ -175,7 +175,7 @@ class SwarmPainter(bpy.types.Operator):
     prev_inner_color = None
     keyframes_to_delete = []
     keyframes_to_insert = []
-    is_button: bpy.props.BoolProperty(default=False)
+    is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
 
     def invoke(self, context, event):
         if self.is_button:

@@ -10,7 +10,7 @@ class SwarmSpeed(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
     max_speed_vertical: bpy.props.FloatProperty(name="Vertical max drone speed", default=5.0, min=1.0, max=10.0)
     max_speed_horizontal: bpy.props.FloatProperty(name="Horizontal max drone speed", default=5.0, min=1.0, max=10.0)
-    is_button: bpy.props.BoolProperty(default=False)
+    is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
 
     def invoke(self, context, event):
         if self.is_button:

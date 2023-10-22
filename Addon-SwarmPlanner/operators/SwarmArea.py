@@ -57,7 +57,7 @@ class SwarmArea(bpy.types.Operator):
     bl_label = "Swarm - Set area"
     point0: bpy.props.FloatVectorProperty(name="Point 0", default=[-5,-5,0])
     point1: bpy.props.FloatVectorProperty(name="Point 1", default=[20,20,20])
-    is_button: bpy.props.BoolProperty(default=False)
+    is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
 
     def invoke(self, context, event):
         if self.is_button:

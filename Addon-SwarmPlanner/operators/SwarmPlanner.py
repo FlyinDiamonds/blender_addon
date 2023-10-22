@@ -11,7 +11,7 @@ class SwarmPlanner(bpy.types.Operator):
     min_distance: bpy.props.FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
     speed: bpy.props.FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
     use_faces: bpy.props.BoolProperty(name="Use faces", default=False)
-    is_button: bpy.props.BoolProperty(default=False)
+    is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
 
     def invoke(self, context, event):
         if self.is_button:
