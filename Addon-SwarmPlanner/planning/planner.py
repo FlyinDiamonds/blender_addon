@@ -48,19 +48,16 @@ def color_analog(_collisions:List[Collision], safe_delay):
 
 def plan(sg, tg, DANGER_ZONE):
     statistics_formation(tg)
+    flight_paths = get_cheapest_flight_paths(sg, tg)
+
     formation_s = np.array(sg)
     formation_t = np.array(tg)
 
+    # collision check
     min_distance_sg = get_min_distance(formation_s, DANGER_ZONE) * 0.7
     min_distance_tg = get_min_distance(formation_t, DANGER_ZONE) * 0.7
     modified_danger_zone = min(DANGER_ZONE, min_distance_sg, min_distance_tg)
 
-    # linear assignment
-    cm = create_cost_matrix(formation_s, formation_t)
-    rows, cols = linear_sum_assignment(cm)
-    flight_paths = [FlightPath(formation_s[s], formation_t[t], s, t) for s, t in zip(rows, cols)]
-
-    # collision check
     detect_collisions(flight_paths, modified_danger_zone)
 
     # construct graph
@@ -106,6 +103,15 @@ def plan(sg, tg, DANGER_ZONE):
         move_streak += 1
 
     return flight_paths
+
+def get_cheapest_flight_paths(sg, tg) -> List[FlightPath]:
+    formation_s = np.array(sg)
+    formation_t = np.array(tg)
+
+    # linear assignment
+    cm = create_cost_matrix(formation_s, formation_t)
+    rows, cols = linear_sum_assignment(cm)
+    return [FlightPath(formation_s[s], formation_t[t], s, t) for s, t in zip(rows, cols)]
 
 
 def get_max_time(flight_paths, SPEED):

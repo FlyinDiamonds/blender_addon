@@ -1,7 +1,7 @@
 import bpy
 
 from bpy.types import PropertyGroup
-from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, PointerProperty
+from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, PointerProperty, CollectionProperty
 
 
 class FD_SwarmAreaProps(PropertyGroup):
@@ -61,6 +61,19 @@ def fd_select_method_list(self, context):
 
 def fd_select_mesh_poll(self, object):
     return object.type == 'MESH' and not object.name.startswith("Drone")
+
+class FD_SwarmPlannerMapping(PropertyGroup):
+    drone_index: IntProperty(name="Drone index", default=-1)
+    target_index: IntProperty(name="Vertex/edge/face index", default=-1)
+
+
+class FD_SwarmPlannerNewProps(PropertyGroup):
+    min_distance: FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
+    speed: FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
+    use_faces: BoolProperty(name="Use faces", default=False)
+    selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
+    prev_selected_mesh: PointerProperty(name="Prev selected mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
+    drone_mapping: CollectionProperty(type=FD_SwarmPlannerMapping)
 
 
 class FD_SwarmColorProps(PropertyGroup):
