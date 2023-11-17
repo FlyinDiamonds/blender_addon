@@ -54,8 +54,7 @@ def fd_planner_method_list(self, context):
 
 def fd_plan_to_list(self, context):
     return (('0', 'Vertices', 'Map drones to vertices', 'RESTRICT_SELECT_OFF', 0),
-            ('1', 'Edges', 'Map drones to edges', 'MESH_MONKEY', 1),
-            ('2', 'Faces', 'Map drones to faces', 'TEXTURE', 2))
+            ('1', 'Faces', 'Map drones to faces', 'TEXTURE', 1))
 
 
 def fd_select_mesh_poll(self, object):

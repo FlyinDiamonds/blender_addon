@@ -16,8 +16,8 @@ classes = [
     FD_SwarmAreaProps,
     FD_SwarmInitProps,
     FD_SwarmDistanceProps,
-    FD_SwarmPlannerProps,
     FD_SwarmPlannerMapping,
+    FD_SwarmPlannerProps,
     FD_SwarmSpeedProps,
     FD_SwarmPainterProps,
 ]

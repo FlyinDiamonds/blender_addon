@@ -8,24 +8,23 @@ class SwarmPlanner(bpy.types.Operator):
     bl_idname = "object.swarm_plan"
     bl_label = "Swarm - Plan transition"
     bl_options = {'REGISTER', 'UNDO'}
-    min_distance: bpy.props.FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
-    speed: bpy.props.FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
-    use_faces: bpy.props.BoolProperty(name="Use faces", default=False)
     is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
+
+    def __init__(self):
+        self.props = None
 
     def invoke(self, context, event):
         if self.is_button:
-            self.update_props_from_context(context)
             self.is_button = False
             return self.execute(context)
         else:
-            self.update_props_from_context(context)
             wm = context.window_manager
             return wm.invoke_props_dialog(self)
 
     def execute(self, context):
         scene = context.scene
         FRAMERATE = scene.render.fps
+        self.props = context.scene.fd_swarm_planner_props
 
         positions_source = []
         positions_target = []
@@ -37,30 +36,20 @@ class SwarmPlanner(bpy.types.Operator):
                 drone_objects.append(object)
                 positions_source.append(list(object.location))
 
-        target_object = context.active_object
-
-        if self.use_faces:
-            for polygon in target_object.data.polygons:
-                polygon_global_position = target_object.matrix_world @ polygon.center
-                positions_target.append(list(polygon_global_position))
-        else:
-            for vertex in target_object.data.vertices:
-                vertex_global_position = target_object.matrix_world @ vertex.co
-                positions_target.append(list(vertex_global_position))
-
+        positions_target = self.get_targets_locations(context)
 
         position_cnt = min(len(positions_source), len(positions_target))
         flight_paths = plan(
             positions_source[:position_cnt],
             positions_target[:position_cnt],
-            self.min_distance)
+            self.props.min_distance)
 
         frame_start = scene.frame_current
-        last_frame = int(get_max_time(flight_paths, self.speed)*FRAMERATE) + frame_start
+        last_frame = int(get_max_time(flight_paths, self.props.speed)*FRAMERATE) + frame_start
         for path in flight_paths:
-            dt = path.color / self.speed
+            dt = path.color / self.props.speed
             dframe = int(dt*FRAMERATE)
-            frame_cnt = int(path.length/self.speed*FRAMERATE)
+            frame_cnt = int(path.length/self.props.speed*FRAMERATE)
 
             current_drone = drone_objects[path.start_position_index]
             current_drone.location = path.start
@@ -79,7 +68,19 @@ class SwarmPlanner(bpy.types.Operator):
                 context.scene.frame_end = end_frame
 
         return {'FINISHED'}
-    
-    def update_props_from_context(self, context):
-        props = context.scene.fd_swarm_planner_props
-        self.min_distance, self.speed, self.use_faces = props.min_distance, props.speed, props.use_faces
+
+    def get_targets_locations(self, context):
+        locations = []
+        plan_to_index = int(self.props.plan_to_dropdown)
+        method_index = int(self.props.planner_method)
+        target_object = context.active_object if method_index == 0 else self.props.selected_mesh
+
+        if plan_to_index == 1:
+            for polygon in target_object.data.polygons:
+                polygon_global_position = target_object.matrix_world @ polygon.center
+                locations.append(list(polygon_global_position))
+        else:
+            for vertex in target_object.data.vertices:
+                vertex_global_position = target_object.matrix_world @ vertex.co
+                locations.append(list(vertex_global_position))
+        return locations
