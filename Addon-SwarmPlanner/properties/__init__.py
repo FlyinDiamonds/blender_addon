@@ -9,7 +9,6 @@ from .properties import (
     FD_SwarmPlannerProps,
     FD_SwarmPlannerMapping,
     FD_SwarmSpeedProps,
-    FD_SwarmColorProps,
     FD_SwarmPainterProps,
 )
 
@@ -20,7 +19,6 @@ classes = [
     FD_SwarmPlannerProps,
     FD_SwarmPlannerMapping,
     FD_SwarmSpeedProps,
-    FD_SwarmColorProps,
     FD_SwarmPainterProps,
 ]
 
@@ -34,13 +32,11 @@ def register():
     bpy.types.Scene.fd_swarm_distance_props = PointerProperty(type=FD_SwarmDistanceProps)
     bpy.types.Scene.fd_swarm_planner_props = PointerProperty(type=FD_SwarmPlannerProps)
     bpy.types.Scene.fd_swarm_speed_props = PointerProperty(type=FD_SwarmSpeedProps)
-    bpy.types.Scene.fd_swarm_color_props = PointerProperty(type=FD_SwarmColorProps)
     bpy.types.Scene.fd_swarm_painter_props = PointerProperty(type=FD_SwarmPainterProps)
 
 
 def unregister():
     del bpy.types.Scene.fd_swarm_painter_props
-    del bpy.types.Scene.fd_swarm_color_props
     del bpy.types.Scene.fd_swarm_speed_props
     del bpy.types.Scene.fd_swarm_planner_props
     del bpy.types.Scene.fd_swarm_distance_props
