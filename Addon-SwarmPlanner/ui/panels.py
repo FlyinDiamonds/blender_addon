@@ -2,6 +2,7 @@ import bpy
 
 from bpy.types import Panel
 from ..operators.SwarmPainter import draw_painter
+from ..operators.SwarmPlanner import draw_planner
 
 
 class FD_PT_PlanningPanel(Panel):
@@ -118,14 +119,8 @@ class FD_PT_SwarmPlan(Panel):
 
     def draw(self, context):
         layout = self.layout
-        props = context.scene.fd_swarm_planner_props
-
-        row = layout.row()
-        row.prop(props, 'min_distance')
-        row = layout.row()
-        row.prop(props, 'speed')
-        row = layout.row()
-        row.prop(props, 'use_faces')
+        draw_planner(context, layout)
+        
         row = layout.row()
         row.operator("object.swarm_plan").is_button = True
 

@@ -10,9 +10,9 @@ classes = (
     panels.FD_PT_ExportPanel,
     panels.FD_PT_SwarmArea,
     panels.FD_PT_SwarmInit,
-    panels.FD_PT_SwarmPlan,
     panels.FD_PT_SwarmDistance,
     panels.FD_PT_SwarmSpeed,
+    panels.FD_PT_SwarmPlan,
 )
 
 

@@ -2,6 +2,26 @@ import bpy
 
 from ..planning.planner import plan, get_max_time
 
+def draw_planner(context, layout):
+    props = context.scene.fd_swarm_planner_props
+    method_index = int(props.planner_method)
+
+    box = layout.box()
+    row = box.row()
+    row.prop(props, 'planner_method', expand=True)
+
+    row = box.row()
+    row.prop(props, 'plan_to_dropdown', expand=True)
+    row = box.row()
+    row.prop(props, 'speed')
+
+    if method_index == 0:
+        row = box.row()
+        row.prop(props, 'min_distance')
+    elif method_index == 1:
+        row = box.row()
+        row.prop_search(props, "selected_mesh", context.scene, "objects")
+
 
 class SwarmPlanner(bpy.types.Operator):
     """Plan drone swarm transition to selected formation"""
@@ -20,6 +40,10 @@ class SwarmPlanner(bpy.types.Operator):
         else:
             wm = context.window_manager
             return wm.invoke_props_dialog(self)
+    
+    def draw(self, context):
+        layout = self.layout
+        draw_planner(context, layout)
 
     def execute(self, context):
         scene = context.scene
