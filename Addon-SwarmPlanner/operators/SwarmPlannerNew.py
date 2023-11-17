@@ -27,7 +27,7 @@ class SwarmPlannerNew(bpy.types.Operator):
     
     def draw(self, context):
         layout = self.layout
-        props = context.scene.fd_swarm_planner_new_props
+        props = context.scene.fd_swarm_planner_props
 
         box = layout.box()
         row = box.row()
@@ -39,7 +39,7 @@ class SwarmPlannerNew(bpy.types.Operator):
     def execute(self, context):
         scene = context.scene
         FRAMERATE = scene.render.fps
-        self.props = context.scene.fd_swarm_planner_new_props
+        self.props = context.scene.fd_swarm_planner_props
 
         positions_target = self.get_targets_locations()
         positions_source = []

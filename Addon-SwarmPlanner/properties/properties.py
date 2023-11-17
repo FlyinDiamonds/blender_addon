@@ -19,12 +19,6 @@ class FD_SwarmDistanceProps(PropertyGroup):
     min_distance: FloatProperty(name="Mininal separation", default=1.0, min=0.1, max=10.0)
 
 
-class FD_SwarmPlannerProps(PropertyGroup):
-    min_distance: FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
-    speed: FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
-    use_faces: BoolProperty(name="Use faces", default=False)
-
-
 class FD_SwarmSpeedProps(PropertyGroup):
     max_speed_vertical: FloatProperty(name="Vertical max drone speed", default=5.0, min=1.0, max=10.0)
     max_speed_horizontal: FloatProperty(name="Horizontal max drone speed", default=5.0, min=1.0, max=10.0)
@@ -58,19 +52,40 @@ def fd_select_method_list(self, context):
             ('1', 'In mesh', 'Select by object', 'MESH_MONKEY', 1),
             ('2', 'Random', 'Select random', 'TEXTURE', 2))
 
+def fd_planner_method_list(self, context):
+    return (('0', 'Check colissions', 'Check drone colissions', 'COLOR', 0),
+            ('1', 'Same mesh', 'Plan transition to same mesh', 'EYEDROPPER', 1))
+
+def fd_plan_to_list(self, context):
+    return (('0', 'Vertices', 'Map drones to vertices', 'RESTRICT_SELECT_OFF', 0),
+            ('1', 'Edges', 'Map drones to edges', 'MESH_MONKEY', 1),
+            ('2', 'Faces', 'Map drones to faces', 'TEXTURE', 2))
+
 
 def fd_select_mesh_poll(self, object):
     return object.type == 'MESH' and not object.name.startswith("Drone")
+
 
 class FD_SwarmPlannerMapping(PropertyGroup):
     drone_index: IntProperty(name="Drone index", default=-1)
     target_index: IntProperty(name="Vertex/edge/face index", default=-1)
 
 
-class FD_SwarmPlannerNewProps(PropertyGroup):
+class FD_SwarmPlannerProps(PropertyGroup):
     min_distance: FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
     speed: FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
-    use_faces: BoolProperty(name="Use faces", default=False)
+    planner_method: EnumProperty(
+        items=fd_planner_method_list,
+        name="Method",
+        default=0,
+        description="Pick method for planning transition",
+    )
+    plan_to_dropdown: EnumProperty(
+        items=fd_plan_to_list,
+        name="Plan to",
+        default=0,
+        description="Pick entity to plan transitions to",
+    )
     selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     prev_selected_mesh: PointerProperty(name="Prev selected mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     drone_mapping: CollectionProperty(type=FD_SwarmPlannerMapping)
