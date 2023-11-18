@@ -54,9 +54,11 @@ class SwarmPlanner(bpy.types.Operator):
         self.props = context.scene.fd_swarm_planner_props
         method_index = int(self.props.planner_method)
 
+        if method_index == 1 and not self.props.selected_mesh:
+            return {'FINISHED'}
+
         positions_source = []
         positions_target = self.get_targets_locations(context)
-
         drone_objects = []
 
         for object in scene.objects:
@@ -65,12 +67,18 @@ class SwarmPlanner(bpy.types.Operator):
                 positions_source.append(list(object.location))
 
         flight_paths = []
-        if method_index == 0 or not self.props.drone_mapping or self.props.selected_mesh != self.props.prev_selected_mesh:
+        if method_index == 0:
             position_cnt = min(len(positions_source), len(positions_target))
             flight_paths = plan(
                 positions_source[:position_cnt],
                 positions_target[:position_cnt],
                 self.props.min_distance)
+        elif not self.props.drone_mapping or self.props.selected_mesh != self.props.prev_selected_mesh:
+            flight_paths = plan(
+                positions_source,
+                positions_target,
+                0.0)
+
             self.props.prev_selected_mesh = self.props.selected_mesh
             for path in flight_paths:
                 mapping = self.props.drone_mapping.add()
@@ -86,7 +94,6 @@ class SwarmPlanner(bpy.types.Operator):
 
         frame_start = scene.frame_current
         last_frame = int(get_max_time(flight_paths, self.props.speed)*FRAMERATE) + frame_start
-
 
         if method_index == 0:
             for path in flight_paths:

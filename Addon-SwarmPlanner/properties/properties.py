@@ -49,12 +49,12 @@ def fd_select_method_list(self, context):
             ('2', 'Random', 'Select random', 'TEXTURE', 2))
 
 def fd_planner_method_list(self, context):
-    return (('0', 'Check colissions', 'Check drone colissions', 'COLOR', 0),
-            ('1', 'Same mesh', 'Plan transition to same mesh', 'EYEDROPPER', 1))
+    return (('0', 'Check colissions', 'Check drone colissions', 'MOD_PHYSICS', 0),
+            ('1', 'Same mesh', 'Plan transition to same mesh', 'EDITMODE_HLT', 1))
 
 def fd_plan_to_list(self, context):
-    return (('0', 'Vertices', 'Map drones to vertices', 'RESTRICT_SELECT_OFF', 0),
-            ('1', 'Faces', 'Map drones to faces', 'TEXTURE', 1))
+    return (('0', 'Vertices', 'Map drones to vertices', 'VERTEXSEL', 0),
+            ('1', 'Faces', 'Map drones to faces', 'FACESEL', 1))
 
 
 def fd_select_mesh_poll(self, object):
