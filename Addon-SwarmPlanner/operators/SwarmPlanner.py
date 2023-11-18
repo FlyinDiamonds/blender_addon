@@ -1,5 +1,7 @@
 import bpy
+import numpy as np
 
+from ..planning.classes import *
 from ..planning.planner import plan, get_max_time
 
 def draw_planner(context, layout):
@@ -28,6 +30,7 @@ class SwarmPlanner(bpy.types.Operator):
     bl_idname = "object.swarm_plan"
     bl_label = "Swarm - Plan transition"
     bl_options = {'REGISTER', 'UNDO'}
+
     is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
 
     def __init__(self):
@@ -49,9 +52,10 @@ class SwarmPlanner(bpy.types.Operator):
         scene = context.scene
         FRAMERATE = scene.render.fps
         self.props = context.scene.fd_swarm_planner_props
+        method_index = int(self.props.planner_method)
 
         positions_source = []
-        positions_target = []
+        positions_target = self.get_targets_locations(context)
 
         drone_objects = []
 
@@ -60,36 +64,66 @@ class SwarmPlanner(bpy.types.Operator):
                 drone_objects.append(object)
                 positions_source.append(list(object.location))
 
-        positions_target = self.get_targets_locations(context)
-
-        position_cnt = min(len(positions_source), len(positions_target))
-        flight_paths = plan(
-            positions_source[:position_cnt],
-            positions_target[:position_cnt],
-            self.props.min_distance)
+        flight_paths = []
+        if method_index == 0 or not self.props.drone_mapping or self.props.selected_mesh != self.props.prev_selected_mesh:
+            position_cnt = min(len(positions_source), len(positions_target))
+            flight_paths = plan(
+                positions_source[:position_cnt],
+                positions_target[:position_cnt],
+                self.props.min_distance)
+            self.props.prev_selected_mesh = self.props.selected_mesh
+            for path in flight_paths:
+                mapping = self.props.drone_mapping.add()
+                mapping.drone_index = path.start_position_index
+                mapping.target_index = path.end_position_index
+        else:
+            for mapping in self.props.drone_mapping:
+                path = FlightPath(np.array(positions_source[mapping.drone_index]), np.array(positions_target[mapping.target_index]), mapping.drone_index, mapping.target_index)
+                path.color = 0
+                flight_paths.append(path)
+                mapping.drone_index = path.start_position_index
+                mapping.target_index = path.end_position_index
 
         frame_start = scene.frame_current
         last_frame = int(get_max_time(flight_paths, self.props.speed)*FRAMERATE) + frame_start
-        for path in flight_paths:
-            dt = path.color / self.props.speed
-            dframe = int(dt*FRAMERATE)
-            frame_cnt = int(path.length/self.props.speed*FRAMERATE)
 
-            current_drone = drone_objects[path.start_position_index]
-            current_drone.location = path.start
-            current_drone.keyframe_insert(data_path="location", frame=frame_start + dframe)
 
-            current_drone.location = path.end
-            end_frame = frame_start + dframe + frame_cnt
-            current_drone.keyframe_insert(data_path="location", frame=end_frame)
-            current_drone.keyframe_insert(data_path="location", frame=last_frame)
+        if method_index == 0:
+            for path in flight_paths:
+                dt = path.color / self.props.speed
+                dframe = int(dt*FRAMERATE)
+                frame_cnt = int(path.length/self.props.speed*FRAMERATE)
 
-            for fcurve in current_drone.animation_data.action.fcurves:
-                for keyframe in fcurve.keyframe_points:
-                    keyframe.interpolation = "LINEAR"
+                current_drone = drone_objects[path.start_position_index]
+                current_drone.location = path.start
+                current_drone.keyframe_insert(data_path="location", frame=frame_start + dframe)
 
-            if end_frame > context.scene.frame_end:
-                context.scene.frame_end = end_frame
+                current_drone.location = path.end
+                end_frame = frame_start + dframe + frame_cnt
+                current_drone.keyframe_insert(data_path="location", frame=end_frame)
+                current_drone.keyframe_insert(data_path="location", frame=last_frame)
+
+                for fcurve in current_drone.animation_data.action.fcurves:
+                    for keyframe in fcurve.keyframe_points:
+                        keyframe.interpolation = "LINEAR"
+
+                if end_frame > context.scene.frame_end:
+                    context.scene.frame_end = end_frame
+        else:
+            if last_frame > context.scene.frame_end:
+                context.scene.frame_end = last_frame
+
+            for path in flight_paths:
+                current_drone = drone_objects[path.start_position_index]
+                current_drone.location = path.start
+                current_drone.keyframe_insert(data_path="location", frame=frame_start)
+
+                current_drone.location = path.end
+                current_drone.keyframe_insert(data_path="location", frame=last_frame)
+
+                for fcurve in current_drone.animation_data.action.fcurves:
+                    for keyframe in fcurve.keyframe_points:
+                        keyframe.interpolation = "LINEAR"
 
         return {'FINISHED'}
 
