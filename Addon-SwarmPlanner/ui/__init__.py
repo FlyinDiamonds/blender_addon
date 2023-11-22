@@ -5,18 +5,14 @@ from bpy.utils import register_class, unregister_class
 from . import panels
 
 classes = (
-    panels.FD_PlanningPanel,
-    # panels.FD_ColorPanel,
-    panels.FD_PainterPanel,
-    panels.FD_ExportPanel,
-    panels.FD_SwarmArea,
-    panels.FD_SwarmInit,
-    panels.FD_SwarmPlan,
-    panels.FD_SwarmDistance,
-    panels.FD_SwarmSpeed,
-    # panels.FD_ColorMethod,
-    # panels.FD_SelectMethod,
-    # panels.FD_ColorProps,
+    panels.FD_PT_PlanningPanel,
+    panels.FD_PT_PainterPanel,
+    panels.FD_PT_ExportPanel,
+    panels.FD_PT_SwarmArea,
+    panels.FD_PT_SwarmInit,
+    panels.FD_PT_SwarmDistance,
+    panels.FD_PT_SwarmSpeed,
+    panels.FD_PT_SwarmPlan,
 )
 
 

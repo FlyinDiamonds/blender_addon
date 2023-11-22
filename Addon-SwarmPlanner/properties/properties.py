@@ -1,7 +1,7 @@
 import bpy
 
 from bpy.types import PropertyGroup
-from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, PointerProperty
+from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, PointerProperty, CollectionProperty
 
 
 class FD_SwarmAreaProps(PropertyGroup):
@@ -19,25 +19,15 @@ class FD_SwarmDistanceProps(PropertyGroup):
     min_distance: FloatProperty(name="Mininal separation", default=1.0, min=0.1, max=10.0)
 
 
-class FD_SwarmPlannerProps(PropertyGroup):
-    min_distance: FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
-    speed: FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
-    use_faces: BoolProperty(name="Use faces", default=False)
-
-
 class FD_SwarmSpeedProps(PropertyGroup):
     max_speed_vertical: FloatProperty(name="Vertical max drone speed", default=5.0, min=1.0, max=10.0)
     max_speed_horizontal: FloatProperty(name="Horizontal max drone speed", default=5.0, min=1.0, max=10.0)
 
 
-def fd_color_method_list_old(self, context):
-    return (('0', 'Pallete', 'Color pallete', 'COLOR', 0),
-            ('1', 'Picker', 'Color picker', 'EYEDROPPER', 1))
-
 def fd_color_method_list(self, context):
     return (('0', 'Pallete', 'Color pallete', 'COLOR', 0),
             ('1', 'Picker', 'Color picker', 'EYEDROPPER', 1),
-            ('2', 'Transition', 'Pick transition', 'EYEDROPPER', 2))
+            ('2', 'Transition', 'Pick transition', 'COLORSET_07_VEC', 2))
 
 
 def fd_frame_method_list(self, context):
@@ -58,42 +48,42 @@ def fd_select_method_list(self, context):
             ('1', 'In mesh', 'Select by object', 'MESH_MONKEY', 1),
             ('2', 'Random', 'Select random', 'TEXTURE', 2))
 
+def fd_planner_method_list(self, context):
+    return (('0', 'Check colissions', 'Check drone colissions', 'MOD_PHYSICS', 0),
+            ('1', 'Same mesh', 'Plan transition to same mesh', 'EDITMODE_HLT', 1))
+
+def fd_plan_to_list(self, context):
+    return (('0', 'Vertices', 'Map drones to vertices', 'VERTEXSEL', 0),
+            ('1', 'Faces', 'Map drones to faces', 'FACESEL', 1))
+
 
 def fd_select_mesh_poll(self, object):
     return object.type == 'MESH' and not object.name.startswith("Drone")
 
 
-class FD_SwarmColorProps(PropertyGroup):
-    color_method_dropdown: EnumProperty(
-        items=fd_color_method_list_old,
-        name="Color method",
+class FD_SwarmPlannerMapping(PropertyGroup):
+    drone_index: IntProperty(name="Drone index", default=-1)
+    target_index: IntProperty(name="Vertex/edge/face index", default=-1)
+
+
+class FD_SwarmPlannerProps(PropertyGroup):
+    min_distance: FloatProperty(name="Minimal distance", default=2.0, min=1.0, max=5.0)
+    speed: FloatProperty(name="Drone speed", default=5.0, min=1.0, max=10.0)
+    planner_method: EnumProperty(
+        items=fd_planner_method_list,
+        name="Method",
         default=0,
-        description="Pick method for drone painting",
+        description="Pick method for planning transition",
     )
-    color_pallette: EnumProperty(
-        items=fd_color_pallette_list,
-        name="Color pallette",
+    plan_to_dropdown: EnumProperty(
+        items=fd_plan_to_list,
+        name="Plan to",
         default=0,
-        description="Pick color from color pallette",
-    )
-    color_picker: FloatVectorProperty(
-             name = "Color Picker",
-             subtype = "COLOR",
-             min = 0.0,
-             max = 1.0,
-             default = (1.0, 1.0, 1.0, 1.0),
-             size = 4
-             )
-    select_method_dropdown: EnumProperty(
-        items=fd_select_method_list,
-        name="Select method",
-        default=0,
-        description="Pick method for drone selection",
+        description="Pick entity to plan transitions to",
     )
     selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
-    random_percentage: IntProperty(name="Percentage to select", default=50, min=1, max=100)
-    invert_selection: BoolProperty(name="Invert selection", default=False)
-    step_change: BoolProperty(name="Step change", default=True)
+    prev_selected_mesh: PointerProperty(name="Prev selected mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
+    drone_mapping: CollectionProperty(type=FD_SwarmPlannerMapping)
 
 
 class FD_SwarmPainterProps(PropertyGroup):
