@@ -2,7 +2,7 @@ import bpy
 import numpy as np
 
 from ..planning.classes import *
-from ..planning.planner import plan, get_max_time
+from ..planning.planner import plan, get_max_time, get_cheapest_flight_paths
 
 def draw_planner(context, layout):
     props = context.scene.fd_swarm_planner_props
@@ -53,6 +53,7 @@ class SwarmPlanner(bpy.types.Operator):
         FRAMERATE = scene.render.fps
         self.props = context.scene.fd_swarm_planner_props
         method_index = int(self.props.planner_method)
+        plan_to_index = int(self.props.plan_to_dropdown)
 
         if method_index == 1 and not self.props.selected_mesh:
             return {'FINISHED'}
@@ -67,20 +68,25 @@ class SwarmPlanner(bpy.types.Operator):
                 positions_source.append(list(object.location))
 
         flight_paths = []
+        position_cnt = min(len(positions_source), len(positions_target))
         if method_index == 0:
-            position_cnt = min(len(positions_source), len(positions_target))
             flight_paths = plan(
                 positions_source[:position_cnt],
                 positions_target[:position_cnt],
                 self.props.min_distance)
-        elif not self.props.drone_mapping or self.props.selected_mesh != self.props.prev_selected_mesh:
-            flight_paths = plan(
-                positions_source,
-                positions_target,
-                0.0)
-
+        elif (
+                not self.props.drone_mapping 
+                or self.props.selected_mesh != self.props.prev_selected_mesh 
+                or len(positions_target) < len(self.props.drone_mapping)
+                or self.props.prev_plan_to_index != plan_to_index
+            ):
+            flight_paths = get_cheapest_flight_paths(
+                positions_source[:position_cnt],
+                positions_target[:position_cnt])
             self.props.prev_selected_mesh = self.props.selected_mesh
+            self.props.prev_plan_to_index = plan_to_index
             for path in flight_paths:
+                path.color = 0
                 mapping = self.props.drone_mapping.add()
                 mapping.drone_index = path.start_position_index
                 mapping.target_index = path.end_position_index
