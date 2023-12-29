@@ -4,6 +4,15 @@ from ..utils.drone_in_mesh import is_drone_inside_mesh
 
 import random
 
+class CUSTOM_UL_items(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        layout.label(text=str(index))
+        layout.prop(item, "name", text="", emboss=False, translate=False, icon='MESH_CUBE')
+
+
+    def invoke(self, context, event):
+        pass
+
 
 COLOR_PALLETTE = [
     (1.0, 1.0, 1.0, 1.0),
@@ -82,6 +91,69 @@ def draw_painter(context, layout):
     elif select_method_index == 2:
         row = box.row()
         row.prop(props, 'random_percentage')
+    elif select_method_index == 3:
+        scn = context.scene
+        row = box.row()
+        
+        rows = 4
+        row.template_list("CUSTOM_UL_items", "fd_swarm_group_select_list_ui", scn, "fd_swarm_group_select_list", 
+            scn, "fd_swarm_group_select_index", rows=rows)
+
+        col = row.column(align=True)
+
+        index = "fd_swarm_group_select_index"
+        path = "fd_swarm_group_select_list"
+
+        op = col.operator("fd.ui_list_add", icon='ADD', text="")
+        op.scene_index_name = index
+        op.scene_path = path
+
+        op = col.operator("fd.ui_list_remove", icon='REMOVE', text="")
+        op.scene_index_name = index
+        op.scene_path = path
+
+        op = col.operator("fd.ui_list_move", icon='TRIA_UP', text="")
+        op.scene_index_name = index
+        op.scene_path = path
+        op.action = "UP"
+
+        op = col.operator("fd.ui_list_move", icon='TRIA_DOWN', text="")
+        op.scene_index_name = index
+        op.scene_path = path
+        op.action = "DOWN"
+
+        group_select_index = scn.fd_swarm_group_select_index
+        group_select_list = scn.fd_swarm_group_select_list
+
+        if group_select_index != -1:
+            row = box.row()
+            
+            row.template_list("CUSTOM_UL_items", "fd_swarm_group_select_drone_list_ui", group_select_list[group_select_index], "drones", 
+                scn, "fd_swarm_group_select_drone_index", rows=rows)
+            
+            col = row.column(align=True)
+            
+            index = "fd_swarm_group_select_drone_index"
+            path = f"fd_swarm_group_select_list[{scn.fd_swarm_group_select_index}].drones"
+
+            op = col.operator("fd.ui_list_add", icon='ADD', text="")
+            op.scene_index_name = index
+            op.scene_path = path
+
+            op = col.operator("fd.ui_list_remove", icon='REMOVE', text="")
+            op.scene_index_name = index
+            op.scene_path = path
+
+            op = col.operator("fd.ui_list_move", icon='TRIA_UP', text="")
+            op.scene_index_name = index
+            op.scene_path = path
+            op.action = "UP"
+
+            op = col.operator("fd.ui_list_move", icon='TRIA_DOWN', text="")
+            op.scene_index_name = index
+            op.scene_path = path
+            op.action = "DOWN"
+
     row = box.row()
     row.prop(props, 'invert_selection')
 

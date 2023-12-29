@@ -3,14 +3,19 @@ import bpy
 from .SwarmInit import SwarmInit
 from .SwarmPlanner import SwarmPlanner
 from .SwarmExporter import SwarmExporter
-from .SwarmPainter import SwarmPainter
+from .SwarmPainter import SwarmPainter, CUSTOM_UL_items
 from .SwarmArea import SwarmArea
 from .SwarmSpeed import SwarmSpeed
 from .SwarmDistance import SwarmDistance
+from .ui_lists_operators import UIListOperatorAdd, UIListOperatorRemove, UIListOperatorMove
 
 menu_functions = []
 
 menu_classes = (
+    CUSTOM_UL_items,
+    UIListOperatorAdd,
+    UIListOperatorRemove,
+    UIListOperatorMove,
     SwarmPlanner,
     SwarmInit,
     SwarmExporter,

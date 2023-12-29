@@ -10,6 +10,8 @@ from .properties import (
     FD_SwarmPlannerMapping,
     FD_SwarmSpeedProps,
     FD_SwarmPainterProps,
+    FD_SelectGroupDrone,
+    FD_SelectGroup
 )
 
 classes = [
@@ -20,8 +22,13 @@ classes = [
     FD_SwarmPlannerProps,
     FD_SwarmSpeedProps,
     FD_SwarmPainterProps,
+    FD_SelectGroupDrone,
+    FD_SelectGroup
 ]
 
+def abc(self, context):
+    if self.fd_swarm_group_select_index >= 0:
+        self.fd_swarm_group_select_drone_index = min(self.fd_swarm_group_select_drone_index, len(self.fd_swarm_group_select_list[self.fd_swarm_group_select_index].drones)-1)
 
 def register():
     for cls in classes:
@@ -33,6 +40,10 @@ def register():
     bpy.types.Scene.fd_swarm_planner_props = PointerProperty(type=FD_SwarmPlannerProps)
     bpy.types.Scene.fd_swarm_speed_props = PointerProperty(type=FD_SwarmSpeedProps)
     bpy.types.Scene.fd_swarm_painter_props = PointerProperty(type=FD_SwarmPainterProps)
+    bpy.types.Scene.fd_swarm_group_select_list = CollectionProperty(type=FD_SelectGroup)
+    bpy.types.Scene.fd_swarm_group_select_drone_index = bpy.props.IntProperty(default=-1)
+    bpy.types.Scene.fd_swarm_group_select_index = bpy.props.IntProperty(update=abc, default=-1)
+
 
 
 def unregister():

@@ -1,7 +1,7 @@
 import bpy
 
 from bpy.types import PropertyGroup
-from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, PointerProperty, CollectionProperty
+from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, StringProperty, PointerProperty, CollectionProperty
 
 
 class FD_SwarmAreaProps(PropertyGroup):
@@ -46,7 +46,8 @@ def fd_color_pallette_list(self, context):
 def fd_select_method_list(self, context):
     return (('0', 'Selected', 'Selected drones', 'RESTRICT_SELECT_OFF', 0),
             ('1', 'In mesh', 'Select by object', 'MESH_MONKEY', 1),
-            ('2', 'Random', 'Select random', 'TEXTURE', 2))
+            ('2', 'Random', 'Select random', 'TEXTURE', 2),
+            ('3', 'By group', 'Select by group', 'TEXTURE', 3))
 
 def fd_planner_method_list(self, context):
     return (('0', 'Check colissions', 'Check drone colissions', 'MOD_PHYSICS', 0),
@@ -151,3 +152,10 @@ class FD_SwarmPainterProps(PropertyGroup):
              default = (1.0, 1.0, 1.0, 1.0),
              size = 4
     )
+
+class FD_SelectGroupDrone(bpy.types.PropertyGroup):
+    name: StringProperty()
+
+class FD_SelectGroup(bpy.types.PropertyGroup):
+    name: StringProperty()
+    drones: CollectionProperty(type=FD_SelectGroupDrone)
