@@ -29,8 +29,8 @@ class UIListOperatorBase:
 class UIListOperatorAdd(bpy.types.Operator, UIListOperatorBase):
     """Add item to group"""
     bl_idname = "fd.ui_list_add"
-    bl_label = "List Actions"
-    bl_description = "Add item ri group"
+    bl_label = "List add"
+    bl_description = "Add item to group"
     bl_options = {'REGISTER'}
 
 
@@ -49,7 +49,7 @@ class UIListOperatorAdd(bpy.types.Operator, UIListOperatorBase):
 class UIListOperatorRemove(bpy.types.Operator, UIListOperatorBase):
     """Remove item from group"""
     bl_idname = "fd.ui_list_remove"
-    bl_label = "List Actions"
+    bl_label = "List remove"
     bl_description = "Remove item from group"
     bl_options = {'REGISTER'}
 
@@ -68,7 +68,7 @@ class UIListOperatorRemove(bpy.types.Operator, UIListOperatorBase):
 class UIListOperatorMove(bpy.types.Operator, UIListOperatorBase):
     """Move item up or down"""
     bl_idname = "fd.ui_list_move"
-    bl_label = "List Actions"
+    bl_label = "List move"
     bl_description = "Move item up or down"
     bl_options = {'REGISTER'}
 
@@ -90,6 +90,52 @@ class UIListOperatorMove(bpy.types.Operator, UIListOperatorBase):
             elif self.action == 'UP' and self.index >= 1:
                 self.collection.move(self.index, self.index - 1)
                 setattr(scn, self.scene_index_name, self.index - 1)
+        return {"FINISHED"}
+    
+class UIListOperatorAddSelected(bpy.types.Operator, UIListOperatorBase):
+    """Add selected drones to group"""
+    bl_idname = "fd.ui_list_add_selected"
+    bl_label = "List add selected"
+    bl_description = "Add selected drones to group"
+    bl_options = {'REGISTER'}
+
+
+    def invoke(self, context, event):
+        self.resolve_attr(context)
+        scn = context.scene
+
+        selected_drones = {obj for obj in context.selected_objects if obj.type == 'MESH' and obj.name.startswith("Drone")}
+
+        if self.collection is not None:
+            for drone in selected_drones:
+                if all(drone != item.drone for item in self.collection):
+                    item = self.collection.add()
+                    item.id = len(self.collection)
+                    item.drone = drone
+                    setattr(scn, self.scene_index_name, len(self.collection) - 1)
+
+        return {"FINISHED"}
+
+class UIListOperatorRemoveSelected(bpy.types.Operator, UIListOperatorBase):
+    """Remove selected drones from group"""
+    bl_idname = "fd.ui_list_remove_selected"
+    bl_label = "List remove selected"
+    bl_description = "Remove selected drones from group"
+    bl_options = {'REGISTER'}
+
+    def invoke(self, context, event):
+        self.resolve_attr(context)
+        scn = context.scene
+
+        selected_drones = {obj for obj in context.selected_objects if obj.type == 'MESH' and obj.name.startswith("Drone")}
+
+        if self.collection is not None:
+            for drone in selected_drones:
+                for i, item in enumerate(self.collection):
+                    if item.drone == drone:
+                        self.collection.remove(i)
+                        setattr(scn, self.scene_index_name, len(self.collection) - 1)
+
         return {"FINISHED"}
 
 

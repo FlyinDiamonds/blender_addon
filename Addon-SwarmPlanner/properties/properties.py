@@ -58,11 +58,11 @@ def fd_plan_to_list(self, context):
             ('1', 'Faces', 'Map drones to faces', 'FACESEL', 1))
 
 
-def fd_select_mesh_poll(self, object):
-    return object.type == 'MESH' and not object.name.startswith("Drone")
+def fd_select_mesh_poll(self, obj):
+    return obj.type == 'MESH' and not obj.name.startswith("Drone")
 
-def fd_drone_poll(self, object):
-    return object.type == 'MESH' and object.name.startswith("Drone")
+def fd_drone_poll(self, obj):
+    return obj.type == 'MESH' and obj.name.startswith("Drone")
 
 
 class FD_SwarmPlannerMapping(PropertyGroup):
