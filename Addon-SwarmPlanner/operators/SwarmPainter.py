@@ -311,7 +311,7 @@ class SwarmPainter(bpy.types.Operator):
             if scene.fd_swarm_group_select_index != -1:
                 drone_items = scene.fd_swarm_group_select_list[scene.fd_swarm_group_select_index].drones
             selected_drones = {
-                item.drone for item in drone_items if scene.objects.get(item.drone.name) is not None
+                item.drone for item in drone_items if item.drone is not None and scene.objects.get(item.drone.name) is not None
             }
 
         if self.props.invert_selection:

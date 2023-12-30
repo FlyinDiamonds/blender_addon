@@ -150,7 +150,7 @@ class UIListOperatorSelect(bpy.types.Operator, UIListOperatorBase):
 
         if self.collection is not None:
             for item in self.collection:
-                if context.scene.objects.get(item.drone.name) is not None:
+                if item.drone is not None and context.scene.objects.get(item.drone.name) is not None:
                     item.drone.select_set(True)
 
         return {"FINISHED"}
@@ -167,7 +167,7 @@ class UIListOperatorDeselect(bpy.types.Operator, UIListOperatorBase):
 
         if self.collection is not None:
             for item in self.collection:
-                if context.scene.objects.get(item.drone.name) is not None:
+                if item.drone is not None and context.scene.objects.get(item.drone.name) is not None:
                     item.drone.select_set(False)
 
         return {"FINISHED"}
