@@ -138,6 +138,40 @@ class UIListOperatorRemoveSelected(bpy.types.Operator, UIListOperatorBase):
 
         return {"FINISHED"}
 
+class UIListOperatorSelect(bpy.types.Operator, UIListOperatorBase):
+    """Select drones from group"""
+    bl_idname = "fd.ui_list_select"
+    bl_label = "Select"
+    bl_description = "Select drones from group"
+    bl_options = {'REGISTER'}
+
+    def invoke(self, context, event):
+        self.resolve_attr(context)
+
+        if self.collection is not None:
+            for item in self.collection:
+                if context.scene.objects.get(item.drone.name) is not None:
+                    item.drone.select_set(True)
+
+        return {"FINISHED"}
+
+class UIListOperatorDeselect(bpy.types.Operator, UIListOperatorBase):
+    """Deselect drones from group"""
+    bl_idname = "fd.ui_list_deselect"
+    bl_label = "Deselect"
+    bl_description = "Deselect drones from group"
+    bl_options = {'REGISTER'}
+
+    def invoke(self, context, event):
+        self.resolve_attr(context)
+
+        if self.collection is not None:
+            for item in self.collection:
+                if context.scene.objects.get(item.drone.name) is not None:
+                    item.drone.select_set(False)
+
+        return {"FINISHED"}
+
 
 class FD_UL_groups(bpy.types.UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):

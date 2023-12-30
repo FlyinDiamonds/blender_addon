@@ -47,7 +47,7 @@ def fd_select_method_list(self, context):
     return (('0', 'Selected', 'Selected drones', 'RESTRICT_SELECT_OFF', 0),
             ('1', 'In mesh', 'Select by object', 'MESH_MONKEY', 1),
             ('2', 'Random', 'Select random', 'TEXTURE', 2),
-            ('3', 'By group', 'Select by group', 'TEXTURE', 3))
+            ('3', 'Group', 'Select by group', 'GROUP_VERTEX', 3))
 
 def fd_planner_method_list(self, context):
     return (('0', 'Check colissions', 'Check drone colissions', 'MOD_PHYSICS', 0),

@@ -7,7 +7,7 @@ from .SwarmPainter import SwarmPainter
 from .SwarmArea import SwarmArea
 from .SwarmSpeed import SwarmSpeed
 from .SwarmDistance import SwarmDistance
-from .ui_lists_operators import UIListOperatorAdd, UIListOperatorRemove, UIListOperatorMove, UIListOperatorAddSelected, UIListOperatorRemoveSelected, FD_UL_groups, FD_UL_drones
+from .ui_lists_operators import UIListOperatorAdd, UIListOperatorRemove, UIListOperatorMove, UIListOperatorAddSelected, UIListOperatorRemoveSelected, UIListOperatorSelect, UIListOperatorDeselect, FD_UL_groups, FD_UL_drones
 
 menu_functions = []
 
@@ -19,6 +19,8 @@ menu_classes = (
     UIListOperatorMove,
     UIListOperatorAddSelected,
     UIListOperatorRemoveSelected,
+    UIListOperatorSelect,
+    UIListOperatorDeselect,
     SwarmPlanner,
     SwarmInit,
     SwarmExporter,

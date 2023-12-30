@@ -26,7 +26,7 @@ classes = [
     FD_SelectGroup
 ]
 
-def abc(self, context):
+def select_group_callback(self, context):
     if self.fd_swarm_group_select_index >= 0:
         self.fd_swarm_group_select_drone_index = min(self.fd_swarm_group_select_drone_index, len(self.fd_swarm_group_select_list[self.fd_swarm_group_select_index].drones)-1)
 
@@ -42,7 +42,7 @@ def register():
     bpy.types.Scene.fd_swarm_painter_props = PointerProperty(type=FD_SwarmPainterProps)
     bpy.types.Scene.fd_swarm_group_select_list = CollectionProperty(type=FD_SelectGroup)
     bpy.types.Scene.fd_swarm_group_select_drone_index = bpy.props.IntProperty(default=-1)
-    bpy.types.Scene.fd_swarm_group_select_index = bpy.props.IntProperty(update=abc, default=-1)
+    bpy.types.Scene.fd_swarm_group_select_index = bpy.props.IntProperty(update=select_group_callback, default=-1)
 
 
 

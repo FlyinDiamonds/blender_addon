@@ -154,6 +154,15 @@ def draw_painter(context, layout):
             op.scene_index_name = index
             op.scene_path = path
 
+            row = box.row()
+            op = row.operator("fd.ui_list_select", icon='RESTRICT_SELECT_OFF')
+            op.scene_index_name = index
+            op.scene_path = path
+
+            op = row.operator("fd.ui_list_deselect", icon='RESTRICT_SELECT_ON')
+            op.scene_index_name = index
+            op.scene_path = path
+
     row = box.row()
     row.prop(props, 'invert_selection')
 
