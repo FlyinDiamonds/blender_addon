@@ -23,7 +23,6 @@ class UIListOperatorBase:
                 except ValueError:
                     path_obj = getattr(path_obj, path_item)
             self.collection = path_obj
-            # item = collection[idx]
         except (IndexError, AttributeError):
             pass
 
@@ -93,3 +92,22 @@ class UIListOperatorMove(bpy.types.Operator, UIListOperatorBase):
                 setattr(scn, self.scene_index_name, self.index - 1)
         return {"FINISHED"}
 
+
+class FD_UL_groups(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        layout.prop(item, "name", text="Group", emboss=False, translate=False, icon='GROUP_VERTEX')
+
+
+    def invoke(self, context, event):
+        pass
+
+class FD_UL_drones(bpy.types.UIList):
+    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
+        if item.drone:
+            layout.label(text=item.drone.name, icon='MESH_CUBE')
+        else:
+            layout.prop_search(item, "drone", context.scene, "objects", text="", icon='MESH_CUBE')
+
+
+    def invoke(self, context, event):
+        pass

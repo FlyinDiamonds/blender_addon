@@ -61,6 +61,9 @@ def fd_plan_to_list(self, context):
 def fd_select_mesh_poll(self, object):
     return object.type == 'MESH' and not object.name.startswith("Drone")
 
+def fd_drone_poll(self, object):
+    return object.type == 'MESH' and object.name.startswith("Drone")
+
 
 class FD_SwarmPlannerMapping(PropertyGroup):
     drone_index: IntProperty(name="Drone index", default=-1)
@@ -154,7 +157,7 @@ class FD_SwarmPainterProps(PropertyGroup):
     )
 
 class FD_SelectGroupDrone(bpy.types.PropertyGroup):
-    name: StringProperty()
+    drone: PointerProperty(type=bpy.types.Object, poll=fd_drone_poll)
 
 class FD_SelectGroup(bpy.types.PropertyGroup):
     name: StringProperty()

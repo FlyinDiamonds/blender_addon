@@ -4,15 +4,6 @@ from ..utils.drone_in_mesh import is_drone_inside_mesh
 
 import random
 
-class CUSTOM_UL_items(bpy.types.UIList):
-    def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
-        layout.label(text=str(index))
-        layout.prop(item, "name", text="", emboss=False, translate=False, icon='MESH_CUBE')
-
-
-    def invoke(self, context, event):
-        pass
-
 
 COLOR_PALLETTE = [
     (1.0, 1.0, 1.0, 1.0),
@@ -96,7 +87,7 @@ def draw_painter(context, layout):
         row = box.row()
         
         rows = 4
-        row.template_list("CUSTOM_UL_items", "fd_swarm_group_select_list_ui", scn, "fd_swarm_group_select_list", 
+        row.template_list("FD_UL_groups", "fd_swarm_group_select_list_ui", scn, "fd_swarm_group_select_list", 
             scn, "fd_swarm_group_select_index", rows=rows)
 
         col = row.column(align=True)
@@ -128,7 +119,7 @@ def draw_painter(context, layout):
         if group_select_index != -1:
             row = box.row()
             
-            row.template_list("CUSTOM_UL_items", "fd_swarm_group_select_drone_list_ui", group_select_list[group_select_index], "drones", 
+            row.template_list("FD_UL_drones", "fd_swarm_group_select_drone_list_ui", group_select_list[group_select_index], "drones", 
                 scn, "fd_swarm_group_select_drone_index", rows=rows)
             
             col = row.column(align=True)
