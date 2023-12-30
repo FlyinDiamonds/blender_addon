@@ -290,6 +290,7 @@ class SwarmPainter(bpy.types.Operator):
     def resolve_selection(self, context, scene, frame):
         select_method_index = int(self.props.select_method_dropdown)
         selected_drones = set()
+
         if select_method_index == 0:
             selected_drones = {
                 drone for drone in self.all_drones if drone in context.selected_objects
@@ -305,6 +306,13 @@ class SwarmPainter(bpy.types.Operator):
         elif select_method_index == 2:
             num_of_drones = round(len(self.all_drones) / 100 * self.props.random_percentage)
             selected_drones = set(random.sample(self.all_drones, num_of_drones))
+        elif select_method_index == 3:
+            drone_items = []
+            if scene.fd_swarm_group_select_index != -1:
+                drone_items = scene.fd_swarm_group_select_list[scene.fd_swarm_group_select_index].drones
+            selected_drones = {
+                item.drone for item in drone_items if scene.objects.get(item.drone.name) is not None
+            }
 
         if self.props.invert_selection:
             selected_drones = self.all_drones - selected_drones
