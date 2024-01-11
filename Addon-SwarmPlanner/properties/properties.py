@@ -1,7 +1,7 @@
 import bpy
 
 from bpy.types import PropertyGroup
-from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, PointerProperty, CollectionProperty
+from bpy.props import BoolProperty, FloatVectorProperty, EnumProperty, IntProperty, FloatProperty, StringProperty, PointerProperty, CollectionProperty
 
 
 class FD_SwarmAreaProps(PropertyGroup):
@@ -46,7 +46,8 @@ def fd_color_pallette_list(self, context):
 def fd_select_method_list(self, context):
     return (('0', 'Selected', 'Selected drones', 'RESTRICT_SELECT_OFF', 0),
             ('1', 'In mesh', 'Select by object', 'MESH_MONKEY', 1),
-            ('2', 'Random', 'Select random', 'TEXTURE', 2))
+            ('2', 'Random', 'Select random', 'TEXTURE', 2),
+            ('3', 'Group', 'Select by group', 'GROUP_VERTEX', 3))
 
 def fd_planner_method_list(self, context):
     return (('0', 'Check colissions', 'Check drone colissions', 'MOD_PHYSICS', 0),
@@ -57,8 +58,11 @@ def fd_plan_to_list(self, context):
             ('1', 'Faces', 'Map drones to faces', 'FACESEL', 1))
 
 
-def fd_select_mesh_poll(self, object):
-    return object.type == 'MESH' and not object.name.startswith("Drone")
+def fd_select_mesh_poll(self, obj):
+    return obj.type == 'MESH' and not obj.name.startswith("Drone")
+
+def fd_drone_poll(self, obj):
+    return obj.type == 'MESH' and obj.name.startswith("Drone")
 
 
 class FD_SwarmPlannerMapping(PropertyGroup):
@@ -152,3 +156,10 @@ class FD_SwarmPainterProps(PropertyGroup):
              default = (1.0, 1.0, 1.0, 1.0),
              size = 4
     )
+
+class FD_SelectGroupDrone(bpy.types.PropertyGroup):
+    drone: PointerProperty(type=bpy.types.Object, poll=fd_drone_poll)
+
+class FD_SelectGroup(bpy.types.PropertyGroup):
+    name: StringProperty()
+    drones: CollectionProperty(type=FD_SelectGroupDrone)

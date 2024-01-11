@@ -10,7 +10,7 @@ bl_info = {
     "name": "SwarmPlanner",
     "author": "Martin Prochazka",
     "description": "Swarm planning add-on",
-    "blender": (3, 3, 0),
+    "blender": (3, 6, 0),
     "location": "View3D",
     "category": "Object"
 }
