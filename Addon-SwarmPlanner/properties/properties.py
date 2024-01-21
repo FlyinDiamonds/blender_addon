@@ -71,6 +71,7 @@ def fd_drone_poll(self, obj):
 
 
 class FD_SwarmPlannerMapping(PropertyGroup):
+    drone_name: StringProperty(name="Drone name")
     drone_index: IntProperty(name="Drone index", default=-1)
     target_index: IntProperty(name="Vertex/edge/face index", default=-1)
 

@@ -78,18 +78,18 @@ class SwarmPlanner(bpy.types.Operator):
         self.props = context.scene.fd_swarm_planner_props
         method_index = int(self.props.planner_method)
         plan_to_index = int(self.props.plan_to_dropdown)
+        select_method_index = int(self.props.select_method_dropdown)
 
         if method_index == 1 and not self.props.selected_mesh:
             return {'FINISHED'}
 
-        positions_source = []
         positions_target = self.get_targets_locations(context)
-        drone_objects = []
+        drone_objects = self.get_drones(context)
 
-        for object in scene.objects:
-            if object.name.startswith("Drone"):
-                drone_objects.append(object)
-                positions_source.append(list(object.location))
+        positions_source = []
+        for drone in drone_objects:
+            positions_source.append(list(drone.location))
+
 
         flight_paths = []
         position_cnt = min(len(positions_source), len(positions_target))
@@ -99,21 +99,24 @@ class SwarmPlanner(bpy.types.Operator):
                 positions_target[:position_cnt],
                 self.props.min_distance)
         elif (
-                not self.props.drone_mapping 
+                not self.props.drone_mapping
+                or self.props.prev_plan_to_index != plan_to_index
                 or self.props.selected_mesh != self.props.prev_selected_mesh 
                 or len(positions_target) < len(self.props.drone_mapping)
-                or self.props.prev_plan_to_index != plan_to_index
+                or (select_method_index != 0 and {drone.name for drone in drone_objects} != {mapping.drone_name for mapping in self.props.drone_mapping})
             ):
             flight_paths = get_cheapest_flight_paths(
                 positions_source[:position_cnt],
                 positions_target[:position_cnt])
             self.props.prev_selected_mesh = self.props.selected_mesh
             self.props.prev_plan_to_index = plan_to_index
+            self.props.drone_mapping.clear()
             for path in flight_paths:
                 path.color = 0
                 mapping = self.props.drone_mapping.add()
                 mapping.drone_index = path.start_position_index
                 mapping.target_index = path.end_position_index
+                mapping.drone_name = drone_objects[mapping.drone_index].name
         else:
             for mapping in self.props.drone_mapping:
                 path = FlightPath(np.array(positions_source[mapping.drone_index]), np.array(positions_target[mapping.target_index]), mapping.drone_index, mapping.target_index)
@@ -121,6 +124,7 @@ class SwarmPlanner(bpy.types.Operator):
                 flight_paths.append(path)
                 mapping.drone_index = path.start_position_index
                 mapping.target_index = path.end_position_index
+                mapping.drone_name = drone_objects[mapping.drone_index].name
 
         frame_start = scene.frame_current
         last_frame = int(get_max_time(flight_paths, self.props.speed)*FRAMERATE) + frame_start
@@ -179,3 +183,30 @@ class SwarmPlanner(bpy.types.Operator):
                 vertex_global_position = target_object.matrix_world @ vertex.co
                 locations.append(list(vertex_global_position))
         return locations
+    
+    def get_drones(self, context):
+        scene = context.scene
+        select_method_index = int(self.props.select_method_dropdown)
+        selected_drones = []
+        all_drones = []
+
+
+        for object in scene.objects:
+                if object.name.startswith("Drone"):
+                    all_drones.append(object)
+                    
+        if select_method_index == 0:
+            selected_drones = list(all_drones)
+        elif select_method_index == 1:
+            selected_drones = [
+                drone for drone in all_drones if drone in context.selected_objects
+            ]
+        elif select_method_index == 2:
+            drone_items = []
+            if scene.fd_swarm_group_select_index != -1:
+                drone_items = scene.fd_swarm_group_select_list[scene.fd_swarm_group_select_index].drones
+            selected_drones = list({
+                item.drone for item in drone_items if item.drone is not None and scene.objects.get(item.drone.name) is not None
+            })
+
+        return selected_drones
