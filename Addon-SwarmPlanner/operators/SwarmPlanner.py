@@ -7,15 +7,28 @@ from ..planning.planner import plan, get_max_time, get_cheapest_flight_paths
 def draw_planner(context, layout):
     props = context.scene.fd_swarm_planner_props
     method_index = int(props.planner_method)
+    select_method_index = int(props.select_method_dropdown)
 
+    # SELECT
     box = layout.box()
     row = box.row()
+    row.label(text="Select settings")
+    row = box.row()
+    row.prop(props, 'select_method_dropdown', expand=True)
+    if select_method_index == 0:
+        # all drones
+        pass
+    elif select_method_index == 1:
+        # selected in scene
+        pass
+    elif select_method_index == 2:
+        pass
+        
+    # COLLISIONS
+    row = box.row()
+    row.label(text="Collisions settings")
+    row = box.row()
     row.prop(props, 'planner_method', expand=True)
-
-    row = box.row()
-    row.prop(props, 'plan_to_dropdown', expand=True)
-    row = box.row()
-    row.prop(props, 'speed')
 
     if method_index == 0:
         row = box.row()
@@ -23,6 +36,16 @@ def draw_planner(context, layout):
     elif method_index == 1:
         row = box.row()
         row.prop_search(props, "selected_mesh", context.scene, "objects")
+    
+    row = box.row()
+    row.prop(props, 'speed')
+
+    # PLAN TO
+    row = box.row()
+    row.label(text="Plan to")
+    row = box.row()
+    row.prop(props, 'plan_to_dropdown', expand=True)
+    row = box.row()
 
 
 class SwarmPlanner(bpy.types.Operator):
