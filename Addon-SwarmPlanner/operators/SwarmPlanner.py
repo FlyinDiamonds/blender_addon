@@ -3,6 +3,7 @@ import numpy as np
 
 from ..planning.classes import *
 from ..planning.planner import plan, get_max_time, get_cheapest_flight_paths
+from .ui_lists_operators import draw_select_groups
 
 def draw_planner(context, layout):
     props = context.scene.fd_swarm_planner_props
@@ -22,7 +23,7 @@ def draw_planner(context, layout):
         # selected in scene
         pass
     elif select_method_index == 2:
-        pass
+        draw_select_groups(context, box)
         
     # COLLISIONS
     row = box.row()
