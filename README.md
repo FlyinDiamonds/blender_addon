@@ -12,11 +12,6 @@
 
 ![Swarm initialize](gifs/swarm_init.gif)
 
-### Swarm plan transition
-- maps drones to vertices of selected object and plan transition to their locations
-
-![Swarm plan transition](gifs/swarm_transition.gif)
-
 ### Swarm distance
 - check minimal distance between drones
 
@@ -26,6 +21,30 @@
 - check maximal horizontal and vertical drones speed
 
 ![Swarm speed](gifs/swarm_speed.gif)
+
+## Swarm plan
+- plan transition of drones to object vertices/faces
+
+### Selection
+- select which drones to plan for from all drones, selected drones in scene, drones from group
+- more about groups <https://github.com/FlyinDiamonds/blender_addon#groups>
+
+### Check collisions
+- keeps minimal distance between drones
+
+![Swarm planner collisions](gifs/planner_collisions.gif)
+
+### Same mesh
+- plans on same object
+- does not check distance between drones
+
+![Swarm planner same mesh](gifs/planner_same_mesh.gif)
+
+### Plan to target
+- plan to vertices/faces of selected object
+
+![Swarm planner target](gifs/planner_target.gif)
+
 
 ## Frames
 
@@ -89,7 +108,7 @@
 
 ### Select group
 - select items in active group
-- [more about groups] <https://github.com/FlyinDiamonds/blender_addon#invert-selection>
+- more about groups <https://github.com/FlyinDiamonds/blender_addon#groups>
 
 ![Select group](gifs/select_group.gif)
 
