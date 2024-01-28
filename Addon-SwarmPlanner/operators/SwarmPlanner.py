@@ -46,7 +46,6 @@ def draw_planner(context, layout):
     row.label(text="Plan to")
     row = box.row()
     row.prop(props, 'plan_to_dropdown', expand=True)
-    row = box.row()
 
 
 class SwarmPlanner(bpy.types.Operator):
@@ -80,16 +79,19 @@ class SwarmPlanner(bpy.types.Operator):
         plan_to_index = int(self.props.plan_to_dropdown)
         select_method_index = int(self.props.select_method_dropdown)
 
-        if method_index == 1 and not self.props.selected_mesh:
+        if (method_index == 1 and not self.props.selected_mesh) \
+            or (select_method_index == 1 and method_index == 0):
             return {'FINISHED'}
 
         positions_target = self.get_targets_locations(context)
         drone_objects = self.get_drones(context)
 
+        if not drone_objects or not positions_target:
+            return {'FINISHED'}
+
         positions_source = []
         for drone in drone_objects:
             positions_source.append(list(drone.location))
-
 
         flight_paths = []
         position_cnt = min(len(positions_source), len(positions_target))
