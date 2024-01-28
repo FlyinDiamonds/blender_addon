@@ -87,6 +87,12 @@
 
 ![Select random](gifs/select_random.gif)
 
+### Select group
+- select items in active group
+- [more about groups] <https://github.com/FlyinDiamonds/blender_addon#invert-selection>
+
+![Select group](gifs/select_group.gif)
+
 ### Invert selection
 - drones which are not selected are used
 
@@ -124,3 +130,19 @@
 ### Move
 - move item in group
 ![Group item move](gifs/group_item_move.gif)
+
+### Add selected
+- adds items for selected drones
+![Group item add](gifs/group_item_add_selected.gif)
+
+### Remove selected
+- remove selected drones from group
+![Group item remove](gifs/group_item_remove_selected.gif)
+
+### Select
+- selects drones in group
+![Group select](gifs/group_item_select.gif)
+
+### Deselect
+- deselects drones in group
+![Group deselect](gifs/group_item_deselect.gif)
