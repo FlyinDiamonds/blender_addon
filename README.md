@@ -91,3 +91,36 @@
 - drones which are not selected are used
 
 ![Select invert](gifs/select_invert.gif)
+
+## Groups
+
+### Create group
+- create empty drone group
+- group can be named
+
+![Create group](gifs/create_group.gif)
+
+### Remove group
+- remove group
+
+![Remove group](gifs/remove_group.gif)
+
+
+### Move group
+- move group by arrows fro better organization
+
+![Move group](gifs/move_group.gif)
+
+## Group items
+
+### Add
+- adds empty item with object picker
+![Group item add](gifs/group_item_add.gif)
+
+### Remove
+- remove item from group
+![Group item remove](gifs/group_item_remove.gif)
+
+### Move
+- move item in group
+![Group item move](gifs/group_item_move.gif)
