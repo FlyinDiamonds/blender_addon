@@ -49,9 +49,14 @@ def fd_select_method_list(self, context):
             ('2', 'Random', 'Select random', 'TEXTURE', 2),
             ('3', 'Group', 'Select by group', 'GROUP_VERTEX', 3))
 
+def fd_select_method_planner_list(self, context):
+    return (('0', 'All', 'All drones', 'LIGHTPROBE_GRID', 0),
+            ('1', 'Selected', 'Selected drones', 'RESTRICT_SELECT_OFF', 1),
+            ('2', 'Group', 'Select by group', 'GROUP_VERTEX', 2))
+
 def fd_planner_method_list(self, context):
     return (('0', 'Check colissions', 'Check drone colissions', 'MOD_PHYSICS', 0),
-            ('1', 'Same mesh', 'Plan transition to same mesh', 'EDITMODE_HLT', 1))
+            ('1', 'Same mesh', 'Plan transition to same mesh', 'MESH_MONKEY', 1))
 
 def fd_plan_to_list(self, context):
     return (('0', 'Vertices', 'Map drones to vertices', 'VERTEXSEL', 0),
@@ -66,6 +71,7 @@ def fd_drone_poll(self, obj):
 
 
 class FD_SwarmPlannerMapping(PropertyGroup):
+    drone_name: StringProperty(name="Drone name")
     drone_index: IntProperty(name="Drone index", default=-1)
     target_index: IntProperty(name="Vertex/edge/face index", default=-1)
 
@@ -84,6 +90,12 @@ class FD_SwarmPlannerProps(PropertyGroup):
         name="Plan to",
         default=0,
         description="Pick entity to plan transitions to",
+    )
+    select_method_dropdown: EnumProperty(
+        items=fd_select_method_planner_list,
+        name="Select method",
+        default=0,
+        description="Pick method for drone selection",
     )
     selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     prev_selected_mesh: PointerProperty(name="Prev selected mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
