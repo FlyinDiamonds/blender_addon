@@ -205,7 +205,7 @@ class SwarmPainter(bpy.types.Operator):
         start_modulo = start_frame % self.props.frame_step
 
         for frame in range(start_frame - 1, end_frame + 2):
-            self.resolve_current_colors(frame)
+            self.resolve_current_colors(frame, context)
 
             if frame == start_frame - 1:
                 continue
@@ -244,21 +244,23 @@ class SwarmPainter(bpy.types.Operator):
             start_frame, end_frame = self.props.start_frame, self.props.end_frame
         return start_frame, end_frame, end_frame - start_frame
     
-    def resolve_current_colors(self, frame):
+    def resolve_current_colors(self, frame, context):
         for drone in self.all_drones:
             if drone['cur_frame_color']:
                 drone['prev_frame_color'] = copy_color(drone['cur_frame_color'])
             
             material = drone.data.materials[0]
-            diffuse_color = COLOR_PALLETTE[1]
-            if material.animation_data:
-                diffuse_color = (
-                    material.animation_data.action.fcurves[0].evaluate(frame),
-                    material.animation_data.action.fcurves[1].evaluate(frame),
-                    material.animation_data.action.fcurves[2].evaluate(frame),
-                    material.animation_data.action.fcurves[3].evaluate(frame),
-                )
-
+            
+            # wasnt initialized properly
+            if not material.animation_data or not material.animation_data.action or not len(material.animation_data.action.fcurves) >= 4:
+                material.keyframe_insert(data_path="diffuse_color", frame=0)
+                
+            diffuse_color = (
+                material.animation_data.action.fcurves[0].evaluate(frame),
+                material.animation_data.action.fcurves[1].evaluate(frame),
+                material.animation_data.action.fcurves[2].evaluate(frame),
+                material.animation_data.action.fcurves[3].evaluate(frame),
+            )
             drone['cur_frame_color'] = copy_color(diffuse_color)
     
     def resolve_inner_colors(self, frame, duration):
