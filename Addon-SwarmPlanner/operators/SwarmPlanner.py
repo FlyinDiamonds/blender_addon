@@ -1,4 +1,5 @@
 import bpy
+import bmesh
 import numpy as np
 
 from ..planning.classes import *
@@ -146,12 +147,20 @@ class SwarmPlanner(bpy.types.Operator):
         method_index = int(self.props.planner_method)
         target_object = context.active_object if method_index == 0 else self.props.selected_mesh
 
+        depsgraph = bpy.context.evaluated_depsgraph_get()
+        bm = bmesh.new()
+        bm.from_object( target_object, depsgraph )
+
         if plan_to_index == 1:
-            for polygon in target_object.data.polygons:
-                polygon_global_position = target_object.matrix_world @ polygon.center
+            bm.faces.ensure_lookup_table()
+            for polygon in bm.faces:
+                polygon_global_position = target_object.matrix_world @ polygon.calc_center_median()
                 locations.append(list(polygon_global_position))
         else:
-            for vertex in target_object.data.vertices:
+            bm.verts.ensure_lookup_table()
+            for vertex in bm.verts:
                 vertex_global_position = target_object.matrix_world @ vertex.co
                 locations.append(list(vertex_global_position))
+            
+        bm.free()
         return locations
