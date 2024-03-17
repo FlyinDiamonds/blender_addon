@@ -79,6 +79,7 @@ def draw_painter(context, layout):
     if not props.override_background:
         col.enabled = False
     row = box.row()
+    row.prop(props, 'keep_colors')
     
     # SELECT
     select_method_index = int(props.select_method_dropdown)
@@ -268,6 +269,7 @@ class SwarmPainter(bpy.types.Operator):
             self.resolve_cur_frame(drone, start_frame, end_frame, frame)
 
     def resolve_prev_frame(self, drone, start_frame, end_frame, frame):
+        color = None
         if frame == start_frame and (drone['selected'] or self.props.override_background):
             color = copy_color(drone['prev_frame_color'])
         elif not drone['prev_selected'] and drone['selected']:
@@ -276,25 +278,26 @@ class SwarmPainter(bpy.types.Operator):
             color = copy_color(self.prev_inner_color)
         elif frame == end_frame + 1 and self.props.override_background:
             color = copy_color(self.props.background_color_picker)
-        else:
-            return
-        self.keyframes_to_insert.append((frame - 1, drone, color))
+
+        if color:
+            self.keyframes_to_insert.append((frame - 1, drone, color))
     
     def resolve_cur_frame(self, drone, start_frame, end_frame, frame):
+        color = None
         if frame == start_frame:
             if drone['selected']:
                 color = copy_color(self.inner_color)
             elif self.props.override_background:
                 color = copy_color(self.props.background_color_picker)
-        elif frame == end_frame + 1 and (drone['selected'] or self.props.override_background):
+        elif frame == end_frame + 1 and (drone['selected'] or self.props.override_background) and not self.props.keep_colors:
             color = copy_color(drone['cur_frame_color'])
         elif not drone['prev_selected'] and drone['selected']:
             color = copy_color(self.inner_color)
         elif drone['prev_selected'] and not drone['selected']:
             color = copy_color(self.props.background_color_picker if self.props.override_background else drone['cur_frame_color'])
-        else:
-            return
-        self.keyframes_to_insert.append((frame, drone, color))
+
+        if color:
+            self.keyframes_to_insert.append((frame, drone, color))
     
     def insert_keyframes(self):
         for frame, drone, diffuse_color in self.keyframes_to_insert:
