@@ -37,6 +37,8 @@ def duplicate_obj(obj):
     bpy.ops.object.duplicate(linked=False)
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
     duplicated_obj = bpy.context.selected_objects[0]
+    for modifier in duplicated_obj.modifiers:
+        bpy.ops.object.modifier_apply(modifier=modifier.name)
 
     return duplicated_obj
 
