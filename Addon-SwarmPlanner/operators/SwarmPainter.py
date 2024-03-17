@@ -4,6 +4,9 @@ from ..utils.drone_in_mesh import is_drone_inside_mesh
 from .ui_lists_operators import draw_select_groups
 
 import random
+import logging
+
+log = logging.getLogger(__name__)
 
 
 COLOR_PALLETTE = [
@@ -14,9 +17,20 @@ COLOR_PALLETTE = [
     (0.0, 0.0, 1.0, 1.0),
 ]
 
+
+def clear_prop_keyframes(obj, data_path):
+    try:
+        fcs = obj.animation_data.action.fcurves
+        fc = fcs.find(f'{data_path}')
+        fcs.remove(fc)
+    except Exception as _:
+        pass
+
+
 def copy_color(color):
     """Use instead of deepcopy, which fails on diffuse_color"""
     return (color[0], color[1], color[2], color[3])
+
 
 def draw_painter(context, layout):
     props = context.scene.fd_swarm_painter_props
@@ -156,6 +170,8 @@ class SwarmPainter(bpy.types.Operator):
             obj['cur_frame_color'] = None
             obj['prev_selected'] = False
             obj['selected'] = False
+            clear_prop_keyframes(obj, '["prev_selected"]')
+            clear_prop_keyframes(obj, '["selected"]')
             self.all_drones.add(obj)
     
     def get_frames(self, context):
@@ -174,16 +190,16 @@ class SwarmPainter(bpy.types.Operator):
             
             material = drone.data.materials[0]
             
-            # wasnt initialized properly
-            if not material.animation_data or not material.animation_data.action or not len(material.animation_data.action.fcurves) >= 4:
-                material.keyframe_insert(data_path="diffuse_color", frame=0)
-                
-            diffuse_color = (
-                material.animation_data.action.fcurves[0].evaluate(frame),
-                material.animation_data.action.fcurves[1].evaluate(frame),
-                material.animation_data.action.fcurves[2].evaluate(frame),
-                material.animation_data.action.fcurves[3].evaluate(frame),
-            )
+            try:
+                diffuse_color = (
+                    material.animation_data.action.fcurves[0].evaluate(frame),
+                    material.animation_data.action.fcurves[1].evaluate(frame),
+                    material.animation_data.action.fcurves[2].evaluate(frame),
+                    material.animation_data.action.fcurves[3].evaluate(frame),
+                )
+            except Exception:
+                log.debug("Error in current color %s", drone, exc_info=True)
+                diffuse_color = COLOR_PALLETTE[1]
             drone['cur_frame_color'] = copy_color(diffuse_color)
     
     def resolve_inner_colors(self, frame, duration):
@@ -253,41 +269,43 @@ class SwarmPainter(bpy.types.Operator):
 
     def resolve_prev_frame(self, drone, start_frame, end_frame, frame):
         if frame == start_frame and (drone['selected'] or self.props.override_background):
-            self.keyframes_to_insert.append((frame - 1, drone,  copy_color(drone['prev_frame_color'])))
+            color = copy_color(drone['prev_frame_color'])
         elif not drone['prev_selected'] and drone['selected']:
-            self.keyframes_to_insert.append((frame - 1, drone, copy_color(self.props.background_color_picker
-                                                                         if self.props.override_background else drone['prev_frame_color'])))
+            color = copy_color(self.props.background_color_picker if self.props.override_background else drone['prev_frame_color'])
         elif drone['prev_selected'] and (not drone['selected'] or frame == end_frame + 1):
-            self.keyframes_to_insert.append((frame - 1, drone, copy_color(self.prev_inner_color)))
+            color = copy_color(self.prev_inner_color)
         elif frame == end_frame + 1 and self.props.override_background:
-            self.keyframes_to_insert.append((frame - 1, drone, copy_color(self.props.background_color_picker)))
+            color = copy_color(self.props.background_color_picker)
+        else:
+            return
+        self.keyframes_to_insert.append((frame - 1, drone, color))
     
     def resolve_cur_frame(self, drone, start_frame, end_frame, frame):
         if frame == start_frame:
             if drone['selected']:
-                self.keyframes_to_insert.append((frame, drone, copy_color(self.inner_color)))
+                color = copy_color(self.inner_color)
             elif self.props.override_background:
-                self.keyframes_to_insert.append((frame, drone, copy_color(self.props.background_color_picker)))
+                color = copy_color(self.props.background_color_picker)
         elif frame == end_frame + 1 and (drone['selected'] or self.props.override_background):
-            self.keyframes_to_insert.append((frame, drone, copy_color(drone['cur_frame_color'])))
+            color = copy_color(drone['cur_frame_color'])
         elif not drone['prev_selected'] and drone['selected']:
-            self.keyframes_to_insert.append((frame, drone, copy_color(self.inner_color)))
+            color = copy_color(self.inner_color)
         elif drone['prev_selected'] and not drone['selected']:
-            self.keyframes_to_insert.append((frame, drone, copy_color(self.props.background_color_picker
-                                                                         if self.props.override_background else drone['cur_frame_color'])))
+            color = copy_color(self.props.background_color_picker if self.props.override_background else drone['cur_frame_color'])
+        else:
+            return
+        self.keyframes_to_insert.append((frame, drone, color))
     
     def insert_keyframes(self):
         for frame, drone, diffuse_color in self.keyframes_to_insert:
             mat = drone.data.materials[0]
             mat.diffuse_color = diffuse_color
             drone["custom_color"] = [int(c * 255) for c in list(diffuse_color)[:3]]
-            # print(f"Inserting keyframes on frame {frame} mat {diffuse_color}")
             mat.keyframe_insert(data_path="diffuse_color", frame=frame)
             drone.keyframe_insert(data_path='["custom_color"]', frame=frame)
     
     def delete_keyframes(self):
         for drone, frame in self.keyframes_to_delete:
-            # print(f"Deleting keyframes on frame {frame}")
             mat = drone.data.materials[0]
             if bpy.data.materials[mat.name].animation_data.action is not None:
                 mat.keyframe_delete(data_path="diffuse_color", frame=frame)
