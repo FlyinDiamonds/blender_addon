@@ -8,9 +8,9 @@ from .ui_lists_operators import draw_select_groups
 
 def draw_planner(context, layout):
     props = context.scene.fd_swarm_planner_props
-    method_index = int(props.planner_method)
+    method_id = props.planner_method
     select_method_id = props.drone_select_method_dropdown
-    plan_to_id = int(props.plan_to_dropdown)
+    plan_to_id = props.plan_to_dropdown
 
     # SELECT
     box = layout.box()
@@ -33,10 +33,10 @@ def draw_planner(context, layout):
     row = box.row()
     row.prop(props, 'planner_method', expand=True)
 
-    if method_index == 0:
+    if method_id == 'COL':
         row = box.row()
         row.prop(props, 'min_distance')
-    elif method_index == 1:
+    elif method_id == 'SMMSH':
         row = box.row()
         row.prop_search(props, "selected_mesh", context.scene, "objects")
     
@@ -48,7 +48,7 @@ def draw_planner(context, layout):
     row.label(text="Plan to")
     row = box.row()
     row.prop(props, 'plan_to_dropdown', expand=True)
-    if plan_to_id == 0 and method_index == 1:
+    if plan_to_id == 'VTX' and method_id == 'SMMSH':
         row = box.row()
         row.prop(props, 'vertices_select_method_dropdown', expand=True)
 
@@ -81,12 +81,12 @@ class SwarmPlanner(bpy.types.Operator):
         scene = context.scene
         FRAMERATE = scene.render.fps
         self.props = context.scene.fd_swarm_planner_props
-        method_index = int(self.props.planner_method)
-        plan_to_index = int(self.props.plan_to_dropdown)
+        method_id = self.props.planner_method
+        plan_to_id = self.props.plan_to_dropdown
         select_method_id = self.props.drone_select_method_dropdown
 
-        if (method_index == 1 and not self.props.selected_mesh) \
-            or (select_method_id == 'SLTD' and method_index == 0):
+        if (method_id == 'SMMSH' and not self.props.selected_mesh) \
+            or (select_method_id == 'SLTD' and method_id == 'COL'):
             return {'FINISHED'}
 
         positions_target = self.get_targets_locations(context)
@@ -101,14 +101,14 @@ class SwarmPlanner(bpy.types.Operator):
 
         flight_paths = []
         position_cnt = min(len(positions_source), len(positions_target))
-        if method_index == 0:
+        if method_id == 'COL':
             flight_paths = plan(
                 positions_source[:position_cnt],
                 positions_target[:position_cnt],
                 self.props.min_distance)
         elif (
                 not self.props.drone_mapping
-                or self.props.prev_plan_to_index != plan_to_index
+                or self.props.prev_plan_to_id != plan_to_id
                 or self.props.selected_mesh != self.props.prev_selected_mesh 
                 or len(positions_target) < len(self.props.drone_mapping)
                 or (select_method_id != 'ALL' and {drone.name for drone in drone_objects} != {mapping.drone_name for mapping in self.props.drone_mapping})
@@ -117,7 +117,7 @@ class SwarmPlanner(bpy.types.Operator):
                 positions_source[:position_cnt],
                 positions_target[:position_cnt])
             self.props.prev_selected_mesh = self.props.selected_mesh
-            self.props.prev_plan_to_index = plan_to_index
+            self.props.prev_plan_to_id = plan_to_id
             self.props.drone_mapping.clear()
             for path in flight_paths:
                 path.color = 0
@@ -137,7 +137,7 @@ class SwarmPlanner(bpy.types.Operator):
         frame_start = scene.frame_current
         last_frame = int(get_max_time(flight_paths, self.props.speed)*FRAMERATE) + frame_start
 
-        if method_index == 0:
+        if method_id == 'COL':
             for path in flight_paths:
                 dt = path.color / self.props.speed
                 dframe = int(dt*FRAMERATE)
@@ -178,15 +178,15 @@ class SwarmPlanner(bpy.types.Operator):
 
     def get_targets_locations(self, context):
         locations = []
-        plan_to_index = int(self.props.plan_to_dropdown)
-        method_index = int(self.props.planner_method)
-        target_object = context.active_object if method_index == 0 else self.props.selected_mesh
+        plan_to_id = self.props.plan_to_dropdown
+        method_id = self.props.planner_method
+        target_object = context.active_object if method_id == 'COL' else self.props.selected_mesh
 
         depsgraph = bpy.context.evaluated_depsgraph_get()
         bm = bmesh.new()
         bm.from_object( target_object, depsgraph )
 
-        if plan_to_index == 1:
+        if plan_to_id == 'FCS':
             bm.faces.ensure_lookup_table()
             for polygon in bm.faces:
                 polygon_global_position = target_object.matrix_world @ polygon.calc_center_median()

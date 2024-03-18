@@ -56,15 +56,15 @@ def fd_select_method_planner_list(self, context):
 
 def fd_vertices_select_method_planner_list(self, context):
     return (('ALL', 'All', 'All drones', 'LIGHTPROBE_GRID', 0),
-            ('VRTGRP', 'Vertex group', 'Selected vertex group', 'GROUP_VERTEX', 1))
+            ('VTXGRP', 'Vertex group', 'Selected vertex group', 'GROUP_VERTEX', 1))
 
 def fd_planner_method_list(self, context):
-    return (('0', 'Check colissions', 'Check drone colissions', 'MOD_PHYSICS', 0),
-            ('1', 'Same mesh', 'Plan transition to same mesh', 'MESH_MONKEY', 1))
+    return (('COL', 'Check colissions', 'Check drone colissions', 'MOD_PHYSICS', 0),
+            ('SMMSH', 'Same mesh', 'Plan transition to same mesh', 'MESH_MONKEY', 1))
 
 def fd_plan_to_list(self, context):
-    return (('0', 'Vertices', 'Map drones to vertices', 'VERTEXSEL', 0),
-            ('1', 'Faces', 'Map drones to faces', 'FACESEL', 1))
+    return (('VTX', 'Vertices', 'Map drones to vertices', 'VERTEXSEL', 0),
+            ('FCS', 'Faces', 'Map drones to faces', 'FACESEL', 1))
 
 
 def fd_select_mesh_poll(self, obj):
@@ -109,7 +109,7 @@ class FD_SwarmPlannerProps(PropertyGroup):
     )
     selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     prev_selected_mesh: PointerProperty(name="Prev selected mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
-    prev_plan_to_index: IntProperty(name="Index of prev plan to enum", default=-1)
+    prev_plan_to_id: StringProperty(name="Id of prev plan to enum", default="")
     drone_mapping: CollectionProperty(type=FD_SwarmPlannerMapping)
 
 
