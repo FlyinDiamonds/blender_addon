@@ -50,9 +50,13 @@ def fd_select_method_list(self, context):
             ('3', 'Group', 'Select by group', 'GROUP_VERTEX', 3))
 
 def fd_select_method_planner_list(self, context):
-    return (('0', 'All', 'All drones', 'LIGHTPROBE_GRID', 0),
-            ('1', 'Selected', 'Selected drones', 'RESTRICT_SELECT_OFF', 1),
-            ('2', 'Group', 'Select by group', 'GROUP_VERTEX', 2))
+    return (('ALL', 'All', 'All drones', 'LIGHTPROBE_GRID', 0),
+            ('SLTD', 'Selected', 'Selected drones', 'RESTRICT_SELECT_OFF', 1),
+            ('GRP', 'Group', 'Select by group', 'GROUP_VERTEX', 2))
+
+def fd_vertices_select_method_planner_list(self, context):
+    return (('ALL', 'All', 'All drones', 'LIGHTPROBE_GRID', 0),
+            ('VRTGRP', 'Vertex group', 'Selected vertex group', 'GROUP_VERTEX', 1))
 
 def fd_planner_method_list(self, context):
     return (('0', 'Check colissions', 'Check drone colissions', 'MOD_PHYSICS', 0),
@@ -91,11 +95,17 @@ class FD_SwarmPlannerProps(PropertyGroup):
         default=0,
         description="Pick entity to plan transitions to",
     )
-    select_method_dropdown: EnumProperty(
+    drone_select_method_dropdown: EnumProperty(
         items=fd_select_method_planner_list,
-        name="Select method",
+        name="Drones selection settings",
         default=0,
         description="Pick method for drone selection",
+    )
+    vertices_select_method_dropdown: EnumProperty(
+        items=fd_vertices_select_method_planner_list,
+        name="Vertices selection settings",
+        default=0,
+        description="Pick method for vertex selection",
     )
     selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     prev_selected_mesh: PointerProperty(name="Prev selected mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)

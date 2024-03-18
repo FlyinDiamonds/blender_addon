@@ -9,21 +9,22 @@ from .ui_lists_operators import draw_select_groups
 def draw_planner(context, layout):
     props = context.scene.fd_swarm_planner_props
     method_index = int(props.planner_method)
-    select_method_index = int(props.select_method_dropdown)
+    select_method_id = props.drone_select_method_dropdown
+    plan_to_id = int(props.plan_to_dropdown)
 
     # SELECT
     box = layout.box()
     row = box.row()
     row.label(text="Select settings")
     row = box.row()
-    row.prop(props, 'select_method_dropdown', expand=True)
-    if select_method_index == 0:
+    row.prop(props, 'drone_select_method_dropdown', expand=True)
+    if select_method_id == 'ALL':
         # all drones
         pass
-    elif select_method_index == 1:
+    elif select_method_id == 'SLTD':
         # selected in scene
         pass
-    elif select_method_index == 2:
+    elif select_method_id == 'GRP':
         draw_select_groups(context, box)
         
     # COLLISIONS
@@ -47,6 +48,10 @@ def draw_planner(context, layout):
     row.label(text="Plan to")
     row = box.row()
     row.prop(props, 'plan_to_dropdown', expand=True)
+    if plan_to_id == 0 and method_index == 1:
+        row = box.row()
+        row.prop(props, 'vertices_select_method_dropdown', expand=True)
+
 
 
 class SwarmPlanner(bpy.types.Operator):
@@ -78,10 +83,10 @@ class SwarmPlanner(bpy.types.Operator):
         self.props = context.scene.fd_swarm_planner_props
         method_index = int(self.props.planner_method)
         plan_to_index = int(self.props.plan_to_dropdown)
-        select_method_index = int(self.props.select_method_dropdown)
+        select_method_id = self.props.drone_select_method_dropdown
 
         if (method_index == 1 and not self.props.selected_mesh) \
-            or (select_method_index == 1 and method_index == 0):
+            or (select_method_id == 'SLTD' and method_index == 0):
             return {'FINISHED'}
 
         positions_target = self.get_targets_locations(context)
@@ -106,7 +111,7 @@ class SwarmPlanner(bpy.types.Operator):
                 or self.props.prev_plan_to_index != plan_to_index
                 or self.props.selected_mesh != self.props.prev_selected_mesh 
                 or len(positions_target) < len(self.props.drone_mapping)
-                or (select_method_index != 0 and {drone.name for drone in drone_objects} != {mapping.drone_name for mapping in self.props.drone_mapping})
+                or (select_method_id != 'ALL' and {drone.name for drone in drone_objects} != {mapping.drone_name for mapping in self.props.drone_mapping})
             ):
             flight_paths = get_cheapest_flight_paths(
                 positions_source[:position_cnt],
@@ -197,7 +202,7 @@ class SwarmPlanner(bpy.types.Operator):
     
     def get_drones(self, context):
         scene = context.scene
-        select_method_index = int(self.props.select_method_dropdown)
+        select_method_id = self.props.drone_select_method_dropdown
         selected_drones = []
         all_drones = []
 
@@ -206,13 +211,13 @@ class SwarmPlanner(bpy.types.Operator):
                 if object.name.startswith("Drone"):
                     all_drones.append(object)
                     
-        if select_method_index == 0:
+        if select_method_id == 'ALL':
             selected_drones = list(all_drones)
-        elif select_method_index == 1:
+        elif select_method_id == 'SLTD':
             selected_drones = [
                 drone for drone in all_drones if drone in context.selected_objects
             ]
-        elif select_method_index == 2:
+        elif select_method_id == 'GRP':
             drone_items = []
             if scene.fd_swarm_group_select_index != -1:
                 drone_items = scene.fd_swarm_group_select_list[scene.fd_swarm_group_select_index].drones
