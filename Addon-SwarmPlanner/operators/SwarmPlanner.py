@@ -6,6 +6,10 @@ from ..planning.classes import *
 from ..planning.planner import plan, get_max_time, get_cheapest_flight_paths
 from .ui_lists_operators import draw_select_groups
 
+import logging
+
+log = logging.getLogger(__name__)
+
 def draw_planner(self, context):
     layout = self.layout
     props = context.scene.fd_swarm_planner_props
@@ -83,12 +87,15 @@ class SwarmPlanner(bpy.types.Operator):
         scene = context.scene
         FRAMERATE = scene.render.fps
         self.props = context.scene.fd_swarm_planner_props
+        props = self.props
         method_id = self.props.planner_method
         plan_to_id = self.props.plan_to_dropdown
         drone_select_method_id = self.props.drone_select_method_dropdown
+        vertices_select_method_id = self.props.vertices_select_method_dropdown
 
         if (method_id == 'SMMSH' and not self.props.selected_mesh) \
-            or (drone_select_method_id == 'SLTD' and method_id == 'COL'):
+            or (drone_select_method_id == 'SLTD' and method_id == 'COL') \
+            or (method_id == 'SMMSH' and plan_to_id == 'VTX' and vertices_select_method_id == 'VTXGRP' and not props.selected_mesh.vertex_groups.active):
             return {'FINISHED'}
 
         positions_target = self.get_targets_locations(context)
@@ -112,6 +119,7 @@ class SwarmPlanner(bpy.types.Operator):
                 not self.props.drone_mapping
                 or self.props.prev_plan_to_id != plan_to_id
                 or self.props.selected_mesh != self.props.prev_selected_mesh 
+                or (plan_to_id == 'VTX' and vertices_select_method_id == 'VTXGRP' and props.selected_mesh.vertex_groups.active_index != props.prev_vertex_group_index)
                 or len(positions_target) < len(self.props.drone_mapping)
                 or (drone_select_method_id != 'ALL' and {drone.name for drone in drone_objects} != {mapping.drone_name for mapping in self.props.drone_mapping})
             ):
@@ -120,6 +128,11 @@ class SwarmPlanner(bpy.types.Operator):
                 positions_target[:position_cnt])
             self.props.prev_selected_mesh = self.props.selected_mesh
             self.props.prev_plan_to_id = plan_to_id
+            try:
+                props.prev_vertex_group_index = self.props.selected_mesh.vertex_groups.active_index
+            except:
+                pass
+
             self.props.drone_mapping.clear()
             for path in flight_paths:
                 path.color = 0
@@ -182,11 +195,12 @@ class SwarmPlanner(bpy.types.Operator):
         locations = []
         plan_to_id = self.props.plan_to_dropdown
         method_id = self.props.planner_method
+        vertices_select_method_id = self.props.vertices_select_method_dropdown
         target_object = context.active_object if method_id == 'COL' else self.props.selected_mesh
 
         depsgraph = bpy.context.evaluated_depsgraph_get()
         bm = bmesh.new()
-        bm.from_object( target_object, depsgraph )
+        bm.from_object(target_object, depsgraph )
 
         if plan_to_id == 'FCS':
             bm.faces.ensure_lookup_table()
@@ -196,6 +210,17 @@ class SwarmPlanner(bpy.types.Operator):
         else:
             bm.verts.ensure_lookup_table()
             for vertex in bm.verts:
+                if vertices_select_method_id == 'VTXGRP':
+                    try:
+                        bm.verts.layers.deform.verify()
+                        group_index = target_object.vertex_groups.active_index
+                        deform_layer = bm.verts.layers.deform.active
+                        deform_vert = vertex[deform_layer]
+                        if deform_vert[group_index] == 0.0:
+                            continue
+                    except:
+                        log.debug("Error get_targets_locations", exc_info=True)
+                        continue
                 vertex_global_position = target_object.matrix_world @ vertex.co
                 locations.append(list(vertex_global_position))
             

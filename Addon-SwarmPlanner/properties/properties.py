@@ -110,6 +110,7 @@ class FD_SwarmPlannerProps(PropertyGroup):
     selected_mesh: PointerProperty(name="Select mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     prev_selected_mesh: PointerProperty(name="Prev selected mesh", type=bpy.types.Object, poll=fd_select_mesh_poll)
     prev_plan_to_id: StringProperty(name="Id of prev plan to enum", default="")
+    prev_vertex_group_index: IntProperty(name="Index of prev vertex group", default=-1)
     drone_mapping: CollectionProperty(type=FD_SwarmPlannerMapping)
 
 
