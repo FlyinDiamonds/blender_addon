@@ -58,7 +58,9 @@ def draw_planner(self, context):
         row = box.row()
         row.prop(props, 'vertices_select_method_dropdown', expand=True)
         if vertices_select_method_id == 'VTXGRP':
-            bpy.types.DATA_PT_vertex_groups.draw(self, context)
+            # bpy.types.DATA_PT_vertex_groups.draw(self, context) not really user friendly
+            row = box.row()
+            row.label(text="Active vertex group of `Same mesh` is used")
 
 
 class SwarmPlanner(bpy.types.Operator):
@@ -200,7 +202,7 @@ class SwarmPlanner(bpy.types.Operator):
 
         depsgraph = bpy.context.evaluated_depsgraph_get()
         bm = bmesh.new()
-        bm.from_object(target_object, depsgraph )
+        bm.from_object(target_object, depsgraph)
 
         if plan_to_id == 'FCS':
             bm.faces.ensure_lookup_table()
