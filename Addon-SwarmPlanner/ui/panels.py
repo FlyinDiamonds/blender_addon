@@ -64,7 +64,10 @@ class FD_PT_SwarmInit(Panel):
         row = layout.row()
         row.prop(props, 'spacing')
         row = layout.row()
-        si = row.operator("object.swarm_init").is_button = True
+        row.operator("object.swarm_init").is_button = True
+
+        row = layout.row()
+        row.operator("object.swarm_land").is_button = True
 
 
 

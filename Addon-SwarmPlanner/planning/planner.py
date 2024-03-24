@@ -46,9 +46,10 @@ def color_analog(_collisions:List[Collision], safe_delay):
     return delay
 
 
-def plan(sg, tg, DANGER_ZONE):
+def plan(sg, tg, DANGER_ZONE, flight_paths=None):
     statistics_formation(tg)
-    flight_paths = get_cheapest_flight_paths(sg, tg)
+    if not flight_paths:
+        flight_paths = get_cheapest_flight_paths(sg, tg)
 
     formation_s = np.array(sg)
     formation_t = np.array(tg)
@@ -116,3 +117,25 @@ def get_cheapest_flight_paths(sg, tg) -> List[FlightPath]:
 
 def get_max_time(flight_paths, SPEED):
     return max([(p.length + p.color) / SPEED for p in flight_paths])
+
+def paths_to_keyframes(scene, drone_objects, flight_paths, frame_start, last_frame, speed, framerate):
+    for path in flight_paths:
+        dt = path.color / speed
+        dframe = int(dt*framerate)
+        frame_cnt = int(path.length/speed*framerate)
+
+        current_drone = drone_objects[path.start_position_index]
+        current_drone.location = path.start
+        current_drone.keyframe_insert(data_path="location", frame=frame_start + dframe)
+
+        current_drone.location = path.end
+        end_frame = frame_start + dframe + frame_cnt
+        current_drone.keyframe_insert(data_path="location", frame=end_frame)
+        current_drone.keyframe_insert(data_path="location", frame=last_frame)
+
+        for fcurve in current_drone.animation_data.action.fcurves:
+            for keyframe in fcurve.keyframe_points:
+                keyframe.interpolation = "LINEAR"
+
+        if end_frame > scene.frame_end:
+            scene.frame_end = end_frame
