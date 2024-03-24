@@ -3,7 +3,7 @@ import bmesh
 import numpy as np
 
 from ..planning.classes import *
-from ..planning.planner import plan, get_max_time, get_cheapest_flight_paths
+from ..planning.planner import plan, get_max_time, get_cheapest_flight_paths, paths_to_keyframes
 from .ui_lists_operators import draw_select_groups
 
 def draw_planner(context, layout):
@@ -133,26 +133,7 @@ class SwarmPlanner(bpy.types.Operator):
         last_frame = int(get_max_time(flight_paths, self.props.speed)*FRAMERATE) + frame_start
 
         if method_index == 0:
-            for path in flight_paths:
-                dt = path.color / self.props.speed
-                dframe = int(dt*FRAMERATE)
-                frame_cnt = int(path.length/self.props.speed*FRAMERATE)
-
-                current_drone = drone_objects[path.start_position_index]
-                current_drone.location = path.start
-                current_drone.keyframe_insert(data_path="location", frame=frame_start + dframe)
-
-                current_drone.location = path.end
-                end_frame = frame_start + dframe + frame_cnt
-                current_drone.keyframe_insert(data_path="location", frame=end_frame)
-                current_drone.keyframe_insert(data_path="location", frame=last_frame)
-
-                for fcurve in current_drone.animation_data.action.fcurves:
-                    for keyframe in fcurve.keyframe_points:
-                        keyframe.interpolation = "LINEAR"
-
-                if end_frame > context.scene.frame_end:
-                    context.scene.frame_end = end_frame
+            paths_to_keyframes(scene, drone_objects, flight_paths, frame_start, last_frame, self.props.speed, FRAMERATE)
         else:
             if last_frame > context.scene.frame_end:
                 context.scene.frame_end = last_frame
