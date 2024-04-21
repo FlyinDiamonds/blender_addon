@@ -121,10 +121,9 @@ class FD_PT_SwarmPlan(Panel):
     bl_parent_id = "FD_PT_PlanningPanel"
 
     def draw(self, context):
-        layout = self.layout
-        draw_planner(context, layout)
+        draw_planner(self, context)
         
-        row = layout.row()
+        row = self.layout.row()
         row.operator("object.swarm_plan").is_button = True
 
 
