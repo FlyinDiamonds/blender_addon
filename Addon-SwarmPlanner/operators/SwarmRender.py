@@ -11,13 +11,20 @@ class SwarmRender(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     camera_name: bpy.props.StringProperty(name="Camera")
+    start: bpy.props.IntProperty(name="Start", default=1)
+    end: bpy.props.IntProperty(name="End", default=100)
     is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
 
     def draw(self, context):
         layout = self.layout
-        layout.prop_search(self, "camera_name", bpy.data, "cameras", text="Camera")
+        row = layout.row()
+        row.prop(self, "start")
+        row.prop(self, "end")
+        row = layout.row()
+        row.prop_search(self, "camera_name", bpy.data, "cameras", text="Camera")
         if self.camera_name and bpy.data.cameras.get(self.camera_name):
-            layout.prop(bpy.data.cameras[self.camera_name], "lens")
+            row = layout.row()
+            row.prop(bpy.data.cameras[self.camera_name], "lens")
 
     def invoke(self, context, event):
         if self.is_button:
