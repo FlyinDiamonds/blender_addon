@@ -3,6 +3,7 @@ import bpy
 from bpy.types import Panel
 from ..operators.SwarmPainter import draw_painter
 from ..operators.SwarmPlanner import draw_planner
+from ..operators.SwarmRender import draw_render
 
 
 class FD_PT_PlanningPanel(Panel):
@@ -272,6 +273,7 @@ class FD_PT_RenderPanel(Panel):
 
     def draw(self, context):
         layout = self.layout
+        draw_render(context, layout)
 
         row = layout.row()
-        row.operator("object.swarm_render")
+        row.operator("object.swarm_render").is_button = True
