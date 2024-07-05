@@ -10,8 +10,10 @@ def draw_render(context, layout, props_obj=None):
         props_obj = context.scene.fd_swarm_render_props
 
     row = layout.row()
-    row.prop(props_obj, "start")
-    row.prop(props_obj, "end")
+    row.prop(props_obj, "start_frame")
+    row.prop(props_obj, "end_frame")
+    row = layout.row()
+    row.prop(props_obj, "auto_focus")
     row = layout.row()
     row.prop_search(props_obj, "camera_name", bpy.data, "cameras", text="Camera")
 
@@ -23,8 +25,9 @@ class SwarmRender(bpy.types.Operator):
     bl_options = {'REGISTER', 'UNDO'}
 
     camera_name: StringProperty(name="Camera")
-    start: IntProperty(name="Start", default=1)
-    end: IntProperty(name="End", default=100)
+    auto_focus: BoolProperty(default=True, name="Auto focus")
+    start_frame: IntProperty(name="Start frame", default=0, min=0)
+    end_frame: IntProperty(name="End frame", default=100, min=1)
 
     is_button: BoolProperty(default=False, options={'HIDDEN'})
 
@@ -42,8 +45,12 @@ class SwarmRender(bpy.types.Operator):
             return context.window_manager.invoke_props_dialog(self)
 
     def execute(self, context):
+        scene = bpy.context.scene
+        prev_frame_start, prev_frame_end = scene.frame_start, scene.frame_end
+        scene.frame_start, scene.frame_end = self.start_frame, self.end_frame
+
         self.all_drones = get_all_drones(context)
-        self.cam = bpy.context.scene.camera = self.get_or_create_camera(self.camera_name)
+        self.cam = scene.camera = self.get_or_create_camera(self.camera_name)
         self.light = self.get_or_create_light()
 
         self.prepare_camera()
@@ -51,8 +58,8 @@ class SwarmRender(bpy.types.Operator):
         light_rotation = (math.radians(45), math.radians(-45), math.radians(45))
         self.prepare_light(light_rotation)
 
-        self.set_output_dimensions(1920, 1280, 100)
-        bpy.ops.render.render('INVOKE_DEFAULT')
+        bpy.ops.render.render(animation=True)
+        scene.frame_start, scene.frame_end = prev_frame_start, prev_frame_end
         return {'FINISHED'}
     
     @staticmethod
@@ -75,22 +82,32 @@ class SwarmRender(bpy.types.Operator):
             bpy.context.view_layer.active_layer_collection.collection.objects.link(light_obj)
         return light_obj
     
-    @staticmethod
-    def set_output_dimensions(dimension_x, dimension_y, percentage):
-        scene = bpy.data.scenes["Scene"]
-        scene.render.resolution_x = dimension_x
-        scene.render.resolution_y = dimension_y
-        scene.render.resolution_percentage = percentage
     
     def prepare_camera(self):
         if not self.all_drones:
             return
+        
+        if self.auto_focus:
+            self.clear_camera_keyframes()
+            step = 10
+            for frame in range(self.start_frame, self.end_frame + step, step):
+                self.focus_camera()
+                self.cam.keyframe_insert(data_path="rotation_euler", frame=frame)
 
+    def clear_camera_keyframes(self):
+        if self.cam.animation_data and self.cam.animation_data.action:
+            fcurves = self.cam.animation_data.action.fcurves
+            for fcurve in fcurves:
+                if fcurve.data_path == "rotation_euler":
+                    self.cam.animation_data.action.fcurves.remove(fcurve)
+    
+    def focus_camera(self):
         center = sum((obj.location for obj in self.all_drones), Vector()) / len(self.all_drones)
         direction = self.cam.location - center
         rot_quat = direction.to_track_quat('Z', 'Y')
         self.cam.rotation_euler = rot_quat.to_euler()
 
+    
     def prepare_light(self, rotation):
         bpy.context.scene.render.engine = 'BLENDER_EEVEE'
         self.light.rotation_euler = rotation

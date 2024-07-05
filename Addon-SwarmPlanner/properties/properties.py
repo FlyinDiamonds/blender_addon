@@ -180,5 +180,6 @@ class FD_SelectGroup(bpy.types.PropertyGroup):
 
 class FD_SwarmRenderProps(PropertyGroup):
     camera_name: StringProperty(name="Camera")
-    start: IntProperty(name="Start", default=1)
-    end: IntProperty(name="End", default=100)
+    auto_focus: BoolProperty(default=True)
+    start_frame: IntProperty(name="Start frame", default=0, min=0)
+    end_frame: IntProperty(name="End frame", default=100, min=1)
