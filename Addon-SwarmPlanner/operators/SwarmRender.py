@@ -58,6 +58,13 @@ class SwarmRender(bpy.types.Operator):
         light_rotation = (math.radians(45), math.radians(-45), math.radians(45))
         self.prepare_light(light_rotation)
 
+        for obj in context.scene.objects:
+            if obj not in self.all_drones:
+                obj.hide_render = True
+        
+        scene.render.engine = 'BLENDER_EEVEE'
+        scene.render.image_settings.file_format = 'AVI_JPEG'
+
         bpy.ops.render.render(animation=True)
         scene.frame_start, scene.frame_end = prev_frame_start, prev_frame_end
         return {'FINISHED'}
