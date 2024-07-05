@@ -3,6 +3,17 @@ import math
 from mathutils import Vector
 from ..utils.common import get_all_drones
 
+def draw_render(context, layout):
+    props = context.scene.fd_swarm_render_props
+    row = layout.row()
+    row.prop(props, "start")
+    row.prop(props, "end")
+    row = layout.row()
+    row.prop_search(props, "camera_name", bpy.data, "cameras", text="Camera")
+    if props.camera_name and bpy.data.cameras.get(props.camera_name):
+        row = layout.row()
+        row.prop(bpy.data.cameras[props.camera_name], "lens")
+
 
 class SwarmRender(bpy.types.Operator):
     """Render drone animation"""
@@ -10,35 +21,24 @@ class SwarmRender(bpy.types.Operator):
     bl_label = "Swarm - Render"
     bl_options = {'REGISTER', 'UNDO'}
 
-    camera_name: bpy.props.StringProperty(name="Camera")
-    start: bpy.props.IntProperty(name="Start", default=1)
-    end: bpy.props.IntProperty(name="End", default=100)
     is_button: bpy.props.BoolProperty(default=False, options={'HIDDEN'})
 
     def draw(self, context):
         layout = self.layout
-        row = layout.row()
-        row.prop(self, "start")
-        row.prop(self, "end")
-        row = layout.row()
-        row.prop_search(self, "camera_name", bpy.data, "cameras", text="Camera")
-        if self.camera_name and bpy.data.cameras.get(self.camera_name):
-            row = layout.row()
-            row.prop(bpy.data.cameras[self.camera_name], "lens")
+        draw_render(context, layout)
 
     def invoke(self, context, event):
         if self.is_button:
-            self.update_props_from_context(context)
             self.is_button = False
             return self.execute(context)
         else:
-            self.update_props_from_context(context)
             wm = context.window_manager
             return wm.invoke_props_dialog(self)
 
     def execute(self, context):
+        props = context.scene.fd_swarm_render_props
         self.all_drones = get_all_drones(context)
-        self.cam = bpy.context.scene.camera = self.get_or_create_camera(self.camera_name)
+        self.cam = bpy.context.scene.camera = self.get_or_create_camera(props.camera_name)
         self.light = self.get_or_create_light()
 
         self.prepare_camera()
@@ -93,5 +93,3 @@ class SwarmRender(bpy.types.Operator):
 
     def update_props_from_context(self, context):
         pass
-        # props = context.scene.fd_swarm_init_props
-        # self.cnt_x, self.cnt_y, self.spacing = props.cnt_x, props.cnt_y, props.spacing

@@ -176,3 +176,9 @@ class FD_SelectGroupDrone(bpy.types.PropertyGroup):
 class FD_SelectGroup(bpy.types.PropertyGroup):
     name: StringProperty()
     drones: CollectionProperty(type=FD_SelectGroupDrone)
+
+
+class FD_SwarmRenderProps(PropertyGroup):
+    camera_name: StringProperty(name="Camera")
+    start: IntProperty(name="Start", default=1)
+    end: IntProperty(name="End", default=100)

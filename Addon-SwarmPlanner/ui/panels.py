@@ -261,3 +261,17 @@ class FD_PT_ExportPanel(Panel):
 
         row = layout.row()
         row.operator("object.swarm_export")
+        
+class FD_PT_RenderPanel(Panel):
+    """Creates side panel."""
+    bl_label = "Swarm render"
+    bl_idname = "FD_PT_RenderPanel"
+    bl_space_type = "VIEW_3D"
+    bl_region_type = "UI"
+    bl_category = "FlyinDiamonds"
+
+    def draw(self, context):
+        layout = self.layout
+
+        row = layout.row()
+        row.operator("object.swarm_render")
