@@ -1,8 +1,9 @@
 import bpy
-import math
+import addon_utils
 from mathutils import Vector
 from ..utils.common import get_all_drones, update_from_property_group
 from bpy.props import IntProperty, StringProperty, BoolProperty
+import os
 
 
 def draw_render(context, layout, props_obj=None):
@@ -54,9 +55,7 @@ class SwarmRender(bpy.types.Operator):
         self.light = self.get_or_create_light()
 
         self.prepare_camera()
-
-        light_rotation = (math.radians(45), math.radians(-45), math.radians(45))
-        self.prepare_light(light_rotation)
+        self.prepare_hdri()
 
         for obj in context.scene.objects:
             if obj not in self.all_drones:
@@ -115,7 +114,48 @@ class SwarmRender(bpy.types.Operator):
         self.cam.rotation_euler = rot_quat.to_euler()
 
     
-    def prepare_light(self, rotation):
-        bpy.context.scene.render.engine = 'BLENDER_EEVEE'
-        self.light.rotation_euler = rotation
-        self.light.data.energy = 2
+    def prepare_hdri(self):
+        hdri_path = None
+        for mod in addon_utils.modules():
+            if mod.bl_info.get("name") == "SwarmPlanner":
+                root_dir = os.path.dirname(mod.__file__)
+                hdri_path = os.path.join(os.path.join(root_dir, "textures"), "symmetrical_garden_02_2k.hdr")
+                break
+
+        scene = bpy.context.scene
+        scene.render.film_transparent = True
+
+        node_tree = scene.world.node_tree
+        tree_nodes = node_tree.nodes
+        tree_nodes.clear()
+
+
+        node_text_coords = tree_nodes.new(type="ShaderNodeTexCoord")
+        node_mapping = tree_nodes.new(type="ShaderNodeMapping")
+        node_environment = tree_nodes.new('ShaderNodeTexEnvironment')
+
+
+        node_light_path = tree_nodes.new(type="ShaderNodeLightPath")
+        node_background = tree_nodes.new(type='ShaderNodeBackground')
+        node_background_black = tree_nodes.new(type='ShaderNodeBackground')
+
+        node_mix_shader = tree_nodes.new(type='ShaderNodeMixShader')
+
+        node_output = tree_nodes.new(type='ShaderNodeOutputWorld')
+
+        node_environment.image = bpy.data.images.load(hdri_path)
+        node_background.inputs[1].default_value = 5.0
+
+
+        links = node_tree.links
+        links.new(node_text_coords.outputs["Generated"], node_mapping.inputs["Vector"])
+
+        links.new(node_mapping.outputs["Vector"], node_environment.inputs["Vector"])
+
+        links.new(node_environment.outputs["Color"], node_background.inputs["Color"])
+
+        links.new(node_light_path.outputs["Is Camera Ray"], node_mix_shader.inputs["Fac"])
+        links.new(node_background.outputs["Background"], node_mix_shader.inputs["Shader"])
+        links.new(node_background_black.outputs["Background"], node_mix_shader.inputs["Shader"])
+
+        links.new(node_mix_shader.outputs["Shader"], node_output.inputs["Surface"])
