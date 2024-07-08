@@ -79,15 +79,6 @@ class SwarmRender(bpy.types.Operator):
             bpy.context.view_layer.active_layer_collection.collection.objects.link(camera_obj)
         return camera_obj
     
-    @staticmethod
-    def get_or_create_light():
-        light_obj = bpy.data.objects.get("Light")
-        if light_obj is None:
-            light_data = bpy.data.lights.new(name="Light", type='SUN')
-            light_obj = bpy.data.objects.new("Light", light_data)
-            bpy.context.view_layer.active_layer_collection.collection.objects.link(light_obj)
-        return light_obj
-    
     
     def prepare_camera(self):
         if not self.all_drones:
