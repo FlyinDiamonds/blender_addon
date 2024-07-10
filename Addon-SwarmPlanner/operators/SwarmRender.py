@@ -4,6 +4,9 @@ from mathutils import Vector
 from ..utils.common import get_all_drones, update_from_property_group
 from bpy.props import IntProperty, StringProperty, BoolProperty
 import os
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def draw_render(context, layout, props_obj=None):
@@ -52,7 +55,6 @@ class SwarmRender(bpy.types.Operator):
 
         self.all_drones = get_all_drones(context)
         self.cam = scene.camera = self.get_or_create_camera(self.camera_name)
-        self.light = self.get_or_create_light()
 
         self.prepare_camera()
         self.prepare_hdri()
@@ -88,7 +90,7 @@ class SwarmRender(bpy.types.Operator):
             self.clear_camera_keyframes()
             step = 10
             for frame in range(self.start_frame, self.end_frame + step, step):
-                self.focus_camera()
+                self.focus_camera(frame)
                 self.cam.keyframe_insert(data_path="rotation_euler", frame=frame)
 
     def clear_camera_keyframes(self):
@@ -98,8 +100,8 @@ class SwarmRender(bpy.types.Operator):
                 if fcurve.data_path == "rotation_euler":
                     self.cam.animation_data.action.fcurves.remove(fcurve)
     
-    def focus_camera(self):
-        center = sum((obj.location for obj in self.all_drones), Vector()) / len(self.all_drones)
+    def focus_camera(self, frame):
+        center = sum((self.get_object_location_at_frame(obj, frame) for obj in self.all_drones), Vector()) / len(self.all_drones)
         direction = self.cam.location - center
         rot_quat = direction.to_track_quat('Z', 'Y')
         self.cam.rotation_euler = rot_quat.to_euler()
@@ -150,3 +152,21 @@ class SwarmRender(bpy.types.Operator):
         links.new(node_background_black.outputs["Background"], node_mix_shader.inputs["Shader"])
 
         links.new(node_mix_shader.outputs["Shader"], node_output.inputs["Surface"])
+
+    def get_object_location_at_frame(self, obj, frame):
+        if not obj.animation_data or not obj.animation_data.action:
+            return obj.location
+        
+        try:
+            loc_x_curve = obj.animation_data.action.fcurves[0]
+            loc_y_curve = obj.animation_data.action.fcurves[1]
+            loc_z_curve = obj.animation_data.action.fcurves[2]
+        except IndexError:
+            logger.debug(f"Object '{obj}' does not have enough f-curves for location")
+            return obj.location
+
+        loc_x = loc_x_curve.evaluate(frame)
+        loc_y = loc_y_curve.evaluate(frame)
+        loc_z = loc_z_curve.evaluate(frame)
+        
+        return Vector((loc_x, loc_y, loc_z))
