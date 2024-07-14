@@ -11,7 +11,8 @@ from .properties import (
     FD_SwarmSpeedProps,
     FD_SwarmPainterProps,
     FD_SelectGroupDrone,
-    FD_SelectGroup
+    FD_SelectGroup,
+    FD_SwarmRenderProps,
 )
 
 classes = [
@@ -23,7 +24,8 @@ classes = [
     FD_SwarmSpeedProps,
     FD_SwarmPainterProps,
     FD_SelectGroupDrone,
-    FD_SelectGroup
+    FD_SelectGroup,
+    FD_SwarmRenderProps,
 ]
 
 def select_group_callback(self, context):
@@ -40,6 +42,7 @@ def register():
     bpy.types.Scene.fd_swarm_planner_props = PointerProperty(type=FD_SwarmPlannerProps)
     bpy.types.Scene.fd_swarm_speed_props = PointerProperty(type=FD_SwarmSpeedProps)
     bpy.types.Scene.fd_swarm_painter_props = PointerProperty(type=FD_SwarmPainterProps)
+    bpy.types.Scene.fd_swarm_render_props = PointerProperty(type=FD_SwarmRenderProps)
     bpy.types.Scene.fd_swarm_group_select_list = CollectionProperty(type=FD_SelectGroup)
     bpy.types.Scene.fd_swarm_group_select_drone_index = bpy.props.IntProperty(default=-1)
     bpy.types.Scene.fd_swarm_group_select_index = bpy.props.IntProperty(update=select_group_callback, default=-1)
@@ -53,6 +56,7 @@ def unregister():
     del bpy.types.Scene.fd_swarm_distance_props
     del bpy.types.Scene.fd_swarm_init_props
     del bpy.types.Scene.fd_swarm_area_props
+    del bpy.types.Scene.fd_swarm_render_props
 
 
     for cls in reversed(classes):

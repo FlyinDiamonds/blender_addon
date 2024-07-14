@@ -6,7 +6,7 @@ from .ui_lists_operators import draw_select_groups
 import random
 import logging
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 COLOR_PALLETTE = [
@@ -199,7 +199,7 @@ class SwarmPainter(bpy.types.Operator):
                     material.animation_data.action.fcurves[3].evaluate(frame),
                 )
             except Exception:
-                log.debug("Error in current color %s", drone, exc_info=True)
+                logger.debug("Error in current color %s", drone, exc_info=True)
                 diffuse_color = COLOR_PALLETTE[1]
             drone['cur_frame_color'] = copy_color(diffuse_color)
     

@@ -8,6 +8,7 @@ classes = (
     panels.FD_PT_PlanningPanel,
     panels.FD_PT_PainterPanel,
     panels.FD_PT_ExportPanel,
+    panels.FD_PT_RenderPanel,
     panels.FD_PT_SwarmArea,
     panels.FD_PT_SwarmInit,
     panels.FD_PT_SwarmDistance,
