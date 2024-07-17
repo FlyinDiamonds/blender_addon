@@ -45,7 +45,7 @@ def draw_distance():
             if i > 0:
                 indices.append((org_p_len, len(points) - 2))
 
-    shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
     batch = batch_for_shader(shader, 'LINES', {"pos": points}, indices=indices)
 
     shader.bind()
@@ -87,7 +87,7 @@ def draw_speed():
         points.append(tuple(pos))
         indices.append((len(points) - 2, len(points) - 1))
 
-    shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
     batch = batch_for_shader(shader, 'LINES', {"pos": points}, indices=indices)
 
     shader.bind()

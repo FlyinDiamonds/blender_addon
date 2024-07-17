@@ -43,7 +43,7 @@ def draw_cube():
                 positions_ok = False
                 break
 
-    shader = gpu.shader.from_builtin('3D_UNIFORM_COLOR')
+    shader = gpu.shader.from_builtin('UNIFORM_COLOR')
     batch = batch_for_shader(shader, 'LINES', {"pos": points}, indices=indices)
 
     shader.bind()

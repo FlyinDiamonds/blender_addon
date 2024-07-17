@@ -63,8 +63,8 @@ class SwarmRender(bpy.types.Operator):
             if obj not in self.all_drones:
                 obj.hide_render = True
         
-        scene.render.engine = 'BLENDER_EEVEE'
-        scene.render.image_settings.file_format = 'AVI_JPEG'
+        scene.render.engine = 'BLENDER_EEVEE_NEXT'
+        scene.render.image_settings.file_format = 'FFMPEG'
 
         bpy.ops.render.render(animation=True)
         scene.frame_start, scene.frame_end = prev_frame_start, prev_frame_end
