@@ -165,3 +165,15 @@
 ### Deselect
 - deselects drones in group
 ![Group deselect](gifs/group_item_deselect.gif)
+
+
+## Dev doc
+
+### Reloading addon
+- currently best for me is adding a symlink into Blender addons folder, that refers to `Addon-SwarmPlanner` folder in git repo, restart Blender if it is first time
+
+- example `mklink /d "C:\Users\vk\AppData\Roaming\Blender Foundation\Blender\4.2\scripts\addons\Addon-SwarmPlanner" "C:\Work\FlyinDiamonds\blender_addon\Addon-SwarmPlanner"`
+
+- thanks to symlink and `reload()` in the most inner `__init__.py` now works `Blender (left top corner icon) -> System -> Reload Scripts`
+
+- You can add it to `Quick favorites` and then just pres `Q`.
