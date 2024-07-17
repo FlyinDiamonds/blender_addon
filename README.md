@@ -1,5 +1,27 @@
 # FlyinDiamonds
 
+## First installation
+- Add-on requires python module `scipy` installed in Blender's python interpreter, not the PC's one so follow these steps:
+    1. Turn on Blender with Admin rights
+    2. Make sure you are connected to the internet and you have enabled internet connection in Blender `Edit -> Preferences -> System -> Network`
+    3. Go to `Scripting` screen preset and add a new file
+    4. Paste this:
+    ```
+    import subprocess
+    import sys
+
+    py_exec = sys.executable
+    # ensure pip is installed & update
+    subprocess.call([str(py_exec), "-m", "ensurepip", "--user"])
+    subprocess.call([str(py_exec), "-m", "pip", "install", "--upgrade", "pip"])
+    # install dependencies using pip
+    # dependencies such as 'numpy' could be added to the end of this command's list
+    subprocess.call([str(py_exec),"-m", "pip", "install", "--user", "scipy"])
+    ```
+    5. (OPTIONAL) Turn on Blender System Console to see what is happening by `Blender -> Window -> Toggle system console`
+    6. Pres `Run Script (big white arrow)` and wait few moments, until Blender "unfreezes", than restart Blender
+    7. Install add-on as any other by `Blender -> Preferences -> Add-ons -> Install from Disk (right top arrow)`, locate .zip file and install, than enable
+
 ## Planning
 
 ### Swarm area
