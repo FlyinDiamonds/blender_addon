@@ -36,27 +36,29 @@ def register():
     for cls in classes:
         register_class(cls)
 
-    bpy.types.Scene.fd_swarm_area_props = PointerProperty(type=FD_SwarmAreaProps)
-    bpy.types.Scene.fd_swarm_init_props = PointerProperty(type=FD_SwarmInitProps)
-    bpy.types.Scene.fd_swarm_distance_props = PointerProperty(type=FD_SwarmDistanceProps)
-    bpy.types.Scene.fd_swarm_planner_props = PointerProperty(type=FD_SwarmPlannerProps)
-    bpy.types.Scene.fd_swarm_speed_props = PointerProperty(type=FD_SwarmSpeedProps)
-    bpy.types.Scene.fd_swarm_painter_props = PointerProperty(type=FD_SwarmPainterProps)
-    bpy.types.Scene.fd_swarm_render_props = PointerProperty(type=FD_SwarmRenderProps)
-    bpy.types.Scene.fd_swarm_group_select_list = CollectionProperty(type=FD_SelectGroup)
-    bpy.types.Scene.fd_swarm_group_select_drone_index = bpy.props.IntProperty(default=-1)
-    bpy.types.Scene.fd_swarm_group_select_index = bpy.props.IntProperty(update=select_group_callback, default=-1)
+    scene = bpy.types.Scene
+    scene.fd_swarm_area_props = PointerProperty(type=FD_SwarmAreaProps)
+    scene.fd_swarm_init_props = PointerProperty(type=FD_SwarmInitProps)
+    scene.fd_swarm_distance_props = PointerProperty(type=FD_SwarmDistanceProps)
+    scene.fd_swarm_planner_props = PointerProperty(type=FD_SwarmPlannerProps)
+    scene.fd_swarm_speed_props = PointerProperty(type=FD_SwarmSpeedProps)
+    scene.fd_swarm_painter_props = PointerProperty(type=FD_SwarmPainterProps)
+    scene.fd_swarm_render_props = PointerProperty(type=FD_SwarmRenderProps)
+    scene.fd_swarm_group_select_list = CollectionProperty(type=FD_SelectGroup)
+    scene.fd_swarm_group_select_drone_index = bpy.props.IntProperty(default=-1)
+    scene.fd_swarm_group_select_index = bpy.props.IntProperty(update=select_group_callback, default=-1)
 
 
 
 def unregister():
-    del bpy.types.Scene.fd_swarm_painter_props
-    del bpy.types.Scene.fd_swarm_speed_props
-    del bpy.types.Scene.fd_swarm_planner_props
-    del bpy.types.Scene.fd_swarm_distance_props
-    del bpy.types.Scene.fd_swarm_init_props
-    del bpy.types.Scene.fd_swarm_area_props
-    del bpy.types.Scene.fd_swarm_render_props
+    scene = bpy.types.Scene
+    del scene.fd_swarm_painter_props
+    del scene.fd_swarm_speed_props
+    del scene.fd_swarm_planner_props
+    del scene.fd_swarm_distance_props
+    del scene.fd_swarm_init_props
+    del scene.fd_swarm_area_props
+    del scene.fd_swarm_render_props
 
 
     for cls in reversed(classes):

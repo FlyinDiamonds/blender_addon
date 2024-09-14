@@ -4,7 +4,7 @@ from .SwarmInit import SwarmInit, SwarmLand
 from .SwarmPlanner import SwarmPlanner
 from .SwarmExporter import SwarmExporter
 from .SwarmPainter import SwarmPainter
-from .SwarmArea import SwarmArea
+from .SwarmArea import draw_cube, SwarmArea
 from .SwarmSpeed import SwarmSpeed
 from .SwarmDistance import SwarmDistance
 from .SwarmRender import SwarmRender
@@ -52,8 +52,14 @@ def register():
         bpy.utils.register_class(cls)
         menu_functions.append(get_menu_func(cls))
         bpy.types.VIEW3D_MT_object.append(menu_functions[-1])
+    
+    scene = bpy.types.Scene
+    scene.draw_handler = bpy.types.SpaceView3D.draw_handler_add(draw_cube, (), 'WINDOW', 'POST_VIEW')
 
 def unregister():
+    scene = bpy.types.Scene
+    del scene.draw_handler
+
     for cls in reversed(ul_lists):
         bpy.utils.unregister_class(cls)
 
