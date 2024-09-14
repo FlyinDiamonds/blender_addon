@@ -4,10 +4,11 @@ from gpu_extras.batch import batch_for_shader
 
 
 def draw_cube():
+    scene = bpy.context.scene
     p1 = None
     p2 = None
 
-    for obj in bpy.context.scene.objects:
+    for obj in scene.objects:
         if obj.name == f"Swarm Area p0":
             p1 = obj.location
         elif obj.name == f"Swarm Area p1":
@@ -29,7 +30,7 @@ def draw_cube():
     ]
 
     positions_ok = True
-    for obj in bpy.context.scene.objects:
+    for obj in scene.objects:
         if not obj.name.startswith("Drone"):
             continue
 
